@@ -1,85 +1,101 @@
-import { App, Editor, MarkdownPostProcessorContext, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { getAPI, isPluginEnabled, DataviewAPI } from "obsidian-dataview";
-import YearTimeline from "functionsYear";
-import MonthTimeline from "functionsMonth";
-import WeekTimeline from "functionsWeek";
-import { ReleaseTimelineSettings, DEFAULT_SETTINGS, SampleSettingTab } from "settings";
+import { Notice, Plugin } from 'obsidian';
+import { ReleaseTimelineBasesView, RELEASE_TIMELINE_VIEW_TYPE } from './timeline-view';
+import { DEFAULT_SETTINGS, ReleaseTimelineSettingTab, ReleaseTimelineSettings } from './settings';
 
 export default class ReleaseTimeline extends Plugin {
 	settings: ReleaseTimelineSettings;
 
-	YearTimelineFunctions = new YearTimeline(this);
-	MonthTimelineFunctions = new MonthTimeline(this);
-	WeekTimelineFunctions = new WeekTimeline(this);
-	
 	async onload() {
-		
-		this.app.workspace.onLayoutReady( () => {
-			const isDataviewInstalled = !!getAPI();
-			if (!isDataviewInstalled) {
-  				new Notice("The Release Timeline plugin requires Dataview to properly function.");
-			}
-		});
-
 		await this.loadSettings();
 
-		console.log("loading obsidian-release-timeline");
-		
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-	    
-		this.registerMarkdownCodeBlockProcessor('release-timeline', async (content: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-
-			let timelineTable = await this.YearTimelineFunctions.renderTimeline(content);
-
-			//render
-			el.appendChild(timelineTable);
-
-			let bulletOption = this.settings.bulletPoints;
-
-			let matches = el.querySelectorAll(".td-first, .td-next");
-        	matches.forEach(function(match) {
-				match.classList.toggle('bullet-points', bulletOption);
-        	});
-
-		});
-
-		this.registerMarkdownCodeBlockProcessor('release-timeline-month', async (content: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-
-			let timelineTable = await this.MonthTimelineFunctions.renderTimelineMonth(content);
-
-			//render
-			el.appendChild(timelineTable);
-
-			let bulletOption = this.settings.bulletPoints;
-
-			let matches = el.querySelectorAll(".td-first, .td-next");
-        	matches.forEach(function(match) {
-				match.classList.toggle('bullet-points', bulletOption);
-        	});
-
-		});
-
-		this.registerMarkdownCodeBlockProcessor('release-timeline-week', async (content: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) => {
-
-			let timelineTable = await this.WeekTimelineFunctions.renderTimelineWeek(content);
-
-			//render
-			el.appendChild(timelineTable);
-
-			let bulletOption = this.settings.bulletPoints;
-
-			let matches = el.querySelectorAll(".td-next");
-        	matches.forEach(function(match) {
-				match.classList.toggle('bullet-points', bulletOption);
-        	});
-
-		});
-
+		this.addSettingTab(new ReleaseTimelineSettingTab(this.app, this));
+		this.registerReleaseTimelineView();
 	}
-	
 
 	onunload() {
+		// Bases view lifecycle is managed by Obsidian.
+	}
 
+	private registerReleaseTimelineView() {
+		const registered = this.registerBasesView(RELEASE_TIMELINE_VIEW_TYPE, {
+			name: 'Release Timeline',
+			icon: 'lucide-calendar-range',
+			factory: (controller, containerEl) => new ReleaseTimelineBasesView(controller, containerEl, this),
+			options: () => [
+				{
+					type: 'dropdown',
+					key: 'mode',
+					displayName: 'Timeline mode',
+					default: this.settings.defaultTimelineMode,
+					options: {
+						year: 'Year',
+						month: 'Month',
+						week: 'Week',
+					},
+				},
+				{
+					type: 'property',
+					key: 'dateProperty',
+					displayName: 'Date property',
+					default: 'note.date',
+				},
+				{
+					type: 'property',
+					key: 'labelProperty',
+					displayName: 'Label property',
+					default: 'file.name',
+				},
+				{
+					type: 'dropdown',
+					key: 'sortDirection',
+					displayName: 'Sort direction',
+					default: this.settings.defaultSortOrder,
+					options: {
+						asc: 'Ascending',
+						desc: 'Descending',
+					},
+				},
+				{
+					type: 'toggle',
+					key: 'bulletPoints',
+					displayName: 'Bullet points',
+					default: this.settings.bulletPoints,
+				},
+				{
+					type: 'toggle',
+					key: 'collapseEmptyYears',
+					displayName: 'Collapse empty years',
+					default: this.settings.collapseEmptyYears,
+				},
+				{
+					type: 'text',
+					key: 'collapseLimit',
+					displayName: 'Collapse limit',
+					placeholder: '2',
+					default: this.settings.collapseLimit,
+				},
+				{
+					type: 'toggle',
+					key: 'collapseEmptyMonths',
+					displayName: 'Collapse empty months',
+					default: this.settings.collapseEmptyMonthsWeeklyTimeline,
+				},
+				{
+					type: 'dropdown',
+					key: 'weekDisplayFormat',
+					displayName: 'Week formatting',
+					default: this.settings.weekDisplayFormat,
+					options: {
+						weekNames: 'Week names: W15',
+						dateNames: 'Date names: 11-17',
+					},
+				},
+			],
+		});
+
+		if (!registered) {
+			new Notice('Release Timeline requires Bases to be enabled in Obsidian 1.10 or newer.');
+		}
 	}
 
 	async loadSettings() {

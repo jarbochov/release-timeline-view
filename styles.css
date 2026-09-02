@@ -1,26 +1,48 @@
 table.release-timeline {
-	flex: 1 1 100%;
-    margin: 0.5em 0 0.5em 1.4em;
-    padding: 0.75em 1em;
-    font-size: 80%;
-    line-height: 0.9;
-    border-collapse: separate !important;
-    border-spacing: 0 1px !important;
-    background-color: transparent;
-	border: 1px solid #a2a9b1 !important;
-	border-radius: 6px 6px 6px 6px;
-	display: table;
+	width: 100%;
+	margin: 0.75rem 0;
+	border-collapse: collapse;
+	font-size: 0.9em;
 }
 
-/* weekly-timeline months border right */
-.weekly-month {
-    border-right: 1px solid #a2a9b1 !important;
-  }
+.release-timeline th,
+.release-timeline td {
+	padding: 0.45rem 0.6rem;
+	vertical-align: top;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
 
+.release-timeline thead th {
+	text-align: left;
+	font-weight: 700;
+	border-bottom: 2px solid var(--background-modifier-border);
+}
 
-table.release-timeline {
-    margin-left: auto;
-    margin-right: auto;
+.release-timeline-period {
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	width: 1%;
+}
+
+.release-timeline-items {
+	width: auto;
+}
+
+.release-timeline-period.year-existing {
+	color: var(--text-normal);
+}
+
+.release-timeline-period.year-nonexisting {
+	color: var(--text-muted);
+}
+
+.release-timeline-list {
+	margin: 0;
+	padding-left: 1.1rem;
+}
+
+.release-timeline-list li + li {
+	margin-top: 0.15rem;
 }
 
 .release-timeline a.internal-link {
@@ -29,95 +51,11 @@ table.release-timeline {
 	border-bottom: none;
 }
 
-.release-timeline .td-first.bullet-points a:before, .release-timeline .td-next.bullet-points a:before {
-  content: "\2022";
-  padding-right: 0.3em;
+.release-timeline a.internal-link:hover {
+	text-decoration: underline;
 }
 
-.theme-dark .release-timeline .year-existing {
-	border-right: 1.4em solid #0BDA51;
-}
-
-.theme-dark .release-timeline .year-nonexisting {
-	border-right: 1.4em solid #424E59;
-}
-
-.theme-light .release-timeline .year-existing {
-	border-right: 1.4em solid #0BDA51;
-}
-
-.theme-light .release-timeline .year-nonexisting {
-	border-right: 1.4em solid #E1E1E1;
-}
-
-/************/
-
-.release-timeline caption {
-    padding: 0.4em 0.4em 0.2em;
-    font-size: 112.5%;
-    text-align: center;
-    white-space: nowrap;
-    display: table-caption;
-	font-weight: bold;
-}
-
-.release-timeline tbody {
-    display: table-row-group;
-    vertical-align: middle;
-}
-
-.release-timeline tr {
-    display: table-row;
-}
-
-.release-timeline th {
-    text-align: right;
-	border: none;
-    padding: 0.4em !important;
-    background: none;
-    font: inherit;
-    color: inherit;
-    vertical-align: middle;
-}
-
-.release-timeline td {
-    text-align: left;
-	display: table-cell;
-    vertical-align: inherit;
-	font-weight: bold;
-	border: none;
-    padding: 0.4em !important;
-    background: none;
-    font: inherit;
-    color: inherit;
-}
-
-.release-timeline .td-first {
-    padding: 0.4em 0.4em 0.2em;
-}
-
-.release-timeline .td-next {
-    padding: 0.2em 0.4em;
-}
-
-.release-timeline th:first-child, .release-timeline td:first-child {
-    padding-left: 0.4em;
-}
-
-.release-timeline .td-separator {
-	border: none;
-	padding-top: 0px !important;
-}
-
-.release-timeline .line-separator {
-	border-bottom: 1px solid #a2a9b1;;
-}
-
-.release-timeline .year-header {
-    font-weight: bold;
-}
-
-/***** week *****/
-.release-timeline .year-nonexisting, .release-timeline .year-existing {
-    font-variant-numeric: tabular-nums;
+.release-timeline-error td {
+	color: var(--text-muted);
+	font-style: italic;
 }

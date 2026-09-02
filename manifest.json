@@ -1,9 +1,9 @@
 {
 	"id": "obsidian-release-timeline",
 	"name": "Release Timeline",
-	"version": "1.3.0",
-	"minAppVersion": "0.12.0",
-	"description": "Release timeline rendered based on notes metadata with a dataview-like syntax.",
+	"version": "2.0.0",
+	"minAppVersion": "1.10.0",
+	"description": "Release timeline rendered as a custom Obsidian Bases view.",
 	"author": "cakechaser",
 	"authorUrl": "https://github.com/cakechaser",
 	"isDesktopOnly": false
