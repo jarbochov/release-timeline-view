@@ -77,8 +77,9 @@ function buildYearRows(records: TimelineRecord[], options: TimelineBuildOptions)
 	}
 
 	const sorted = sortRecords(records, options.sortDirection);
-	const firstYear = sorted[0].date.year;
-	const lastYear = sorted[sorted.length - 1].date.year;
+	const years = sorted.map((record) => record.date.year);
+	const firstYear = Math.min(...years);
+	const lastYear = Math.max(...years);
 	const rows: TimelineRow[] = [];
 	const recordsByYear = new Map<number, TimelineRecord[]>();
 
@@ -155,8 +156,9 @@ function buildMonthRows(records: TimelineRecord[], options: TimelineBuildOptions
 	}
 
 	const sorted = sortRecords(records, options.sortDirection);
-	const firstMonth = sorted[0].date.startOf('month');
-	const lastMonth = sorted[sorted.length - 1].date.startOf('month');
+	const monthDates = sorted.map((record) => record.date.startOf('month'));
+	const firstMonth = monthDates.reduce((min, month) => (month.toMillis() < min.toMillis() ? month : min), monthDates[0]);
+	const lastMonth = monthDates.reduce((max, month) => (month.toMillis() > max.toMillis() ? month : max), monthDates[0]);
 	const rows: TimelineRow[] = [];
 	const recordsByMonth = new Map<string, TimelineRecord[]>();
 
@@ -227,8 +229,9 @@ function buildWeekRows(records: TimelineRecord[], options: TimelineBuildOptions)
 	}
 
 	const sorted = sortRecords(records, options.sortDirection);
-	const firstWeek = sorted[0].date.startOf('week');
-	const lastWeek = sorted[sorted.length - 1].date.startOf('week');
+	const weekDates = sorted.map((record) => record.date.startOf('week'));
+	const firstWeek = weekDates.reduce((min, week) => (week.toMillis() < min.toMillis() ? week : min), weekDates[0]);
+	const lastWeek = weekDates.reduce((max, week) => (week.toMillis() > max.toMillis() ? week : max), weekDates[0]);
 	const rows: TimelineRow[] = [];
 	const recordsByWeek = new Map<string, TimelineRecord[]>();
 

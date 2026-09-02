@@ -1,4 +1,4 @@
-import { BasesEntry, BasesView, QueryController } from 'obsidian';
+import { App, BasesEntry, BasesView, QueryController } from 'obsidian';
 import type ReleaseTimeline from './main';
 import { buildTimelineRows, parseTimelineDate, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
@@ -62,10 +62,60 @@ function readPropertyId(config: BasesView['config'], key: string, fallback: stri
 	return typeof raw === 'string' && raw.trim().length > 0 ? raw : fallback;
 }
 
-function readRecordLabel(entry: BasesEntry, propertyId: string): string {
-	const value = entry.getValue(propertyId);
+function getPropertyCandidates(propertyId: string): string[] {
+	const candidates = new Set<string>([propertyId]);
+	const stripped = propertyId.replace(/^(note|file|formula)\./, '');
+	candidates.add(stripped);
+	return [...candidates];
+}
+
+function readFrontmatterValue(app: App, entry: BasesEntry, propertyId: string): unknown {
+	const [prefix, ...rest] = propertyId.split('.');
+	const rawProperty = rest.join('.');
+
+	if (prefix === 'file') {
+		return entry.file.basename;
+	}
+
+	const cache = app.metadataCache.getFileCache(entry.file);
+	if (cache?.frontmatter && Object.prototype.hasOwnProperty.call(cache.frontmatter, rawProperty)) {
+		return cache.frontmatter[rawProperty];
+	}
+
+	return null;
+}
+
+function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknown {
+	for (const candidate of getPropertyCandidates(propertyId)) {
+		const [prefix] = candidate.split('.');
+		if (prefix === 'note' || prefix === '') {
+			const frontmatterValue = readFrontmatterValue(app, entry, candidate);
+			if (frontmatterValue !== null && frontmatterValue !== undefined) {
+				return frontmatterValue;
+			}
+		}
+
+		if (prefix === 'file' && candidate === 'file.name') {
+			return entry.file.basename;
+		}
+
+		try {
+			const value = entry.getValue(candidate as Parameters<BasesEntry['getValue']>[0]);
+			if (value !== null && value !== undefined) {
+				return value.toString();
+			}
+		} catch (error) {
+			// Ignore unsupported property ids and try the next candidate.
+		}
+	}
+
+	return null;
+}
+
+function readRecordLabel(app: App, entry: BasesEntry, propertyId: string): string {
+	const value = readEntryValue(app, entry, propertyId);
 	if (value !== null && value !== undefined) {
-		const text = String(value.toString()).trim();
+		const text = String(value).trim();
 		if (text.length > 0) {
 			return text;
 		}
@@ -74,19 +124,26 @@ function readRecordLabel(entry: BasesEntry, propertyId: string): string {
 	return entry.file.basename;
 }
 
-function extractTimelineRecords(entries: BasesEntry[], datePropertyId: string, labelPropertyId: string): TimelineRecord[] {
+function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId: string, labelPropertyId: string): TimelineRecord[] {
 	const records: TimelineRecord[] = [];
 
 	for (const entry of entries) {
-		const value = entry.getValue(datePropertyId);
-		const date = parseTimelineDate(value?.toString());
+		let date = null;
+		for (const candidate of getPropertyCandidates(datePropertyId)) {
+			const value = readEntryValue(app, entry, candidate);
+			date = parseTimelineDate(value);
+			if (date) {
+				break;
+			}
+		}
+
 		if (!date) {
 			continue;
 		}
 
 		records.push({
 			filePath: entry.file.path,
-			displayName: readRecordLabel(entry, labelPropertyId),
+			displayName: readRecordLabel(app, entry, labelPropertyId),
 			date,
 		});
 	}
@@ -130,7 +187,7 @@ export class ReleaseTimelineBasesView extends BasesView {
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
-		const records = extractTimelineRecords(this.data.data, datePropertyId, labelPropertyId);
+		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId);
 
 		if (records.length === 0) {
 			this.rootEl.appendChild(createErrorTable('No notes in this base contain a usable timeline date.'));
