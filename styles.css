@@ -5,7 +5,7 @@ table.release-timeline {
 	font-size: 80%;
 	line-height: 0.9;
 	border-collapse: separate !important;
-	border-spacing: 0 0 !important;
+	border-spacing: 0 0.32rem !important;
 	background-color: transparent;
 	border: 1px solid var(--background-modifier-border) !important;
 	border-radius: 6px;
@@ -46,7 +46,7 @@ table.release-timeline {
 .release-timeline .release-timeline-period--year,
 .release-timeline .release-timeline-period--secondary {
 	background-color: var(--background-secondary);
-	padding: 0.35rem 0.55rem !important;
+	padding: 0.45rem 0.7rem !important;
 }
 
 .release-timeline .release-timeline-period--year {
@@ -54,7 +54,7 @@ table.release-timeline {
 	font-weight: 700;
 	white-space: nowrap;
 	vertical-align: middle;
-	min-width: 3.5rem;
+	min-width: 4rem;
 }
 
 .release-timeline .release-timeline-period--secondary {
@@ -62,11 +62,11 @@ table.release-timeline {
 	font-weight: 700;
 	white-space: nowrap;
 	vertical-align: middle;
-	min-width: 3.25rem;
+	min-width: 3.75rem;
 }
 
 .release-timeline .release-timeline-accent-cell {
-	width: 0.35rem;
+	width: 0.55rem;
 	padding: 0 !important;
 	background-color: var(--release-timeline-accent, var(--background-modifier-border));
 }
@@ -106,7 +106,7 @@ table.release-timeline {
 
 .release-timeline .release-timeline-items {
 	font-weight: 700;
-	padding-left: 0.45rem !important;
+	padding-left: 0.8rem !important;
 	padding-right: 0.5rem !important;
 }
 

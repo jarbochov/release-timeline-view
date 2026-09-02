@@ -56,7 +56,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Default timeline mode')
-			.setDesc('Used when creating a new Release Timeline Base view.')
+			.setDesc('Used when creating a new Release Timeline view.')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('year', 'Year');
 				dropdown.addOption('month', 'Month');

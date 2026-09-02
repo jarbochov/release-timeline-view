@@ -1,6 +1,6 @@
 {
 	"id": "release-timeline",
-	"name": "Release Timeline Base",
+	"name": "Release Timeline",
 	"version": "2.0.0",
 	"minAppVersion": "1.10.0",
 	"description": "Render release-style timelines from Obsidian Bases.",

@@ -65,7 +65,8 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.boxShadow = `inset 0.6rem 0 0 ${accentColor}`;
+	cell.style.boxShadow = `inset 0.8rem 0 0 ${accentColor}`;
+	cell.style.paddingLeft = '0.8rem';
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -103,12 +104,13 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 function createSingleItemRow(record: TimelineRecord | null, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
-cell.style.backgroundColor = 'var(--background-primary)';
-cell.style.boxShadow = `inset 0.6rem 0 0 ${accentColor}`;
+	cell.style.backgroundColor = 'var(--background-primary)';
+	cell.style.boxShadow = `inset 0.8rem 0 0 ${accentColor}`;
+	cell.style.paddingLeft = '0.8rem';
 
-if (!record) {
-	cell.classList.add('is-empty');
-	cell.textContent = '—';
+	if (!record) {
+		cell.classList.add('is-empty');
+		cell.textContent = '—';
 		return cell;
 	}
 
@@ -204,6 +206,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
 					yearCell.style.setProperty('--release-timeline-accent', accentColor);
+					yearCell.style.color = accentColor;
+					yearCell.style.paddingRight = '0.85rem';
 					tr.appendChild(yearCell);
 					yearCellDrawn = true;
 				}
@@ -215,6 +219,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.dataset.releaseKind = row.kind;
 					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
 					monthCell.style.setProperty('--release-timeline-accent', accentColor);
+					monthCell.style.paddingRight = '0.75rem';
 					tr.appendChild(monthCell);
 
 					const accentCell = document.createElement('td');
