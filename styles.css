@@ -31,14 +31,10 @@ table.release-timeline {
 	display: table-row;
 }
 
-.release-timeline tr.release-timeline-row--month-end th,
-.release-timeline tr.release-timeline-row--month-end td {
-	padding-bottom: 1.15rem !important;
-}
-
-.release-timeline tr.release-timeline-row--year-end th,
-.release-timeline tr.release-timeline-row--year-end td {
-	padding-bottom: 1.6rem !important;
+.release-timeline tr.release-timeline-row--gap td {
+	padding: 0 !important;
+	height: 1rem;
+	background: transparent !important;
 }
 
 .release-timeline th,
@@ -76,7 +72,7 @@ table.release-timeline {
 }
 
 .release-timeline .release-timeline-accent-cell {
-	width: 0.55rem;
+	width: 0.45rem;
 	padding: 0 !important;
 	background-color: var(--release-timeline-accent, var(--background-modifier-border));
 }
@@ -116,8 +112,8 @@ table.release-timeline {
 
 .release-timeline .release-timeline-items {
 	font-weight: 700;
-	padding-left: 0.8rem !important;
-	padding-right: 0.5rem !important;
+	padding-left: 1.1rem !important;
+	padding-right: 0.75rem !important;
 }
 
 .release-timeline .is-empty {

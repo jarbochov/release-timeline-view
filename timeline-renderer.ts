@@ -142,6 +142,10 @@ function rowCountForMonth(row: TimelineRow, itemLayout: 'stacked' | 'inline'): n
 	return 1;
 }
 
+function rowCountWithGap(row: TimelineRow, itemLayout: 'stacked' | 'inline', isLastRow: boolean): number {
+	return rowCountForMonth(row, itemLayout) + (isLastRow ? 0 : 1);
+}
+
 function groupRowsByYear(rows: TimelineRow[]): TimelineRow[][] {
 	const groups: TimelineRow[][] = [];
 	let currentYear: string | null = null;
@@ -180,7 +184,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	let monthIndex = 0;
 
 	yearGroups.forEach((yearGroup, yearGroupIndex) => {
-		const yearRowSpan = yearGroup.reduce((sum, row) => sum + rowCountForMonth(row, options.itemLayout), 0);
+		const yearRowSpan = yearGroup.reduce((sum, row, index) => sum + rowCountWithGap(row, options.itemLayout, index === yearGroup.length - 1), 0);
 		const palette = getPalette(options.colors, yearGroup[0].kind);
 		let yearCellDrawn = false;
 
@@ -226,13 +230,12 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.style.setProperty('--release-timeline-accent', accentColor);
 					monthCell.style.paddingRight = '0.75rem';
 					tr.appendChild(monthCell);
-
-					const accentCell = document.createElement('td');
-					accentCell.classList.add('release-timeline-accent-cell');
-					accentCell.rowSpan = monthRows;
-					accentCell.style.backgroundColor = accentColor;
-					tr.appendChild(accentCell);
 				}
+
+				const accentCell = document.createElement('td');
+				accentCell.classList.add('release-timeline-accent-cell');
+				accentCell.style.backgroundColor = accentColor;
+				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
 					? createSingleItemRow(itemRecord, accentColor, options.app, options.hoverParent)
@@ -241,6 +244,16 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				tr.appendChild(itemCell);
 				tbody.appendChild(tr);
 			});
+
+			if (rowIndex < yearGroup.length - 1) {
+				const gapRow = document.createElement('tr');
+				gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap');
+				const gapCell = document.createElement('td');
+				gapCell.classList.add('release-timeline-gap');
+				gapCell.setAttribute('colspan', '3');
+				gapRow.appendChild(gapCell);
+				tbody.appendChild(gapRow);
+			}
 		});
 	});
 
