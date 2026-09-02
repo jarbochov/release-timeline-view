@@ -76,6 +76,12 @@ export default class ReleaseTimeline extends Plugin {
 					},
 				},
 				{
+					type: 'toggle',
+					key: 'alternateAccentColors',
+					displayName: 'Alternate accent colors',
+					default: this.settings.alternateAccentColors,
+				},
+				{
 					type: 'slider',
 					key: 'widthPx',
 					displayName: 'Width (px)',
@@ -116,7 +122,7 @@ export default class ReleaseTimeline extends Plugin {
 					default: this.settings.weekDisplayFormat,
 					options: {
 						weekNames: 'Week names: W15',
-						dateNames: 'Date names: 11-17',
+						dateNames: 'Date names: 2025-08-19',
 					},
 				},
 			],

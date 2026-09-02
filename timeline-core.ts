@@ -28,6 +28,7 @@ export interface TimelineBuildOptions {
 	sortDirection: SortDirection;
 	itemLayout: ItemLayout;
 	widthPx: number;
+	alternateAccentColors: boolean;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;
@@ -72,7 +73,7 @@ function weekLabel(date: DateTime, format: WeekDisplayFormat): string {
 		return `W${padWeek(date.weekNumber)}`;
 	}
 
-	return `${weekStart.toFormat('dd')}-${weekEnd.toFormat('dd')}`;
+	return weekStart.toFormat('yyyy-MM-dd');
 }
 
 function buildYearRows(records: TimelineRecord[], options: TimelineBuildOptions): TimelineRow[] {
@@ -190,43 +191,8 @@ function buildMonthRows(records: TimelineRecord[], options: TimelineBuildOptions
 		});
 	}
 
-	const collapsedYears: TimelineRow[] = [];
-	let currentYear = rows[0].year;
-	let yearGroup: TimelineRow[] = [];
-
-	const flushYearGroup = () => {
-		if (yearGroup.length === 0) {
-			return;
-		}
-
-		const totalItems = yearGroup.reduce((sum, row) => sum + row.items.length, 0);
-		if (totalItems === 0) {
-			collapsedYears.push({
-				kind: 'year',
-				label: currentYear,
-				year: currentYear,
-				items: [],
-				empty: true,
-			});
-		} else {
-			collapsedYears.push(...yearGroup);
-		}
-
-		yearGroup = [];
-	};
-
-	for (const row of rows) {
-		if (row.year !== currentYear) {
-			flushYearGroup();
-			currentYear = row.year;
-		}
-
-		yearGroup.push(row);
-	}
-
-	flushYearGroup();
-
-	return reverseIfNeeded(collapsedYears, options.sortDirection);
+	const visibleRows = options.collapseEmptyMonths ? rows.filter((row) => !row.empty) : rows;
+	return reverseIfNeeded(visibleRows, options.sortDirection);
 }
 
 function buildWeekRows(records: TimelineRecord[], options: TimelineBuildOptions): TimelineRow[] {

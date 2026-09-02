@@ -26,7 +26,7 @@ export function createErrorTable(message: string): HTMLTableElement {
 	const tbody = document.createElement('tbody');
 	const row = document.createElement('tr');
 	const cell = document.createElement('td');
-	cell.setAttribute('colspan', '4');
+	cell.setAttribute('colspan', '5');
 	cell.textContent = message;
 	row.appendChild(cell);
 	tbody.appendChild(row);
@@ -118,19 +118,15 @@ function createSingleItemRow(record: TimelineRecord | null, accentColor: string,
 	return cell;
 }
 
-function getPalette(colors: ReleaseTimelineSettings, kind: TimelineRow['kind']): [string, string] {
-	if (kind === 'month') {
-		return [colors.monthExistingColor, colors.monthEmptyColor];
-	}
-
-	if (kind === 'week') {
-		return [colors.weekExistingColor, colors.weekEmptyColor];
-	}
-
-	return [colors.yearExistingColor, colors.yearEmptyColor];
+function getPalette(colors: ReleaseTimelineSettings): [string, string] {
+	return [colors.accentPrimaryColor, colors.accentAlternateColor];
 }
 
-function getAccentColor(palette: [string, string], index: number): string {
+function getAccentColor(palette: [string, string], index: number, alternationEnabled: boolean, empty: boolean): string {
+	if (!alternationEnabled) {
+		return empty ? palette[1] : palette[0];
+	}
+
 	return index % 2 === 0 ? palette[0] : palette[1];
 }
 
@@ -185,12 +181,24 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 	yearGroups.forEach((yearGroup, yearGroupIndex) => {
 		const yearRowSpan = yearGroup.reduce((sum, row, index) => sum + rowCountWithGap(row, options.itemLayout, index === yearGroup.length - 1), 0);
-		const palette = getPalette(options.colors, yearGroup[0].kind);
+		const yearPalette = getPalette(options.colors);
+		const monthPalette = getPalette(options.colors);
 		let yearCellDrawn = false;
 
 		yearGroup.forEach((row, rowIndex) => {
 			const monthRows = rowCountForMonth(row, options.itemLayout);
-			const accentColor = getAccentColor(palette, options.colorAlternationBy === 'year' ? yearGroupIndex : monthIndex);
+			const yearAccentColor = getAccentColor(
+				yearPalette,
+				yearGroupIndex,
+				options.colors.alternateAccentColors && options.colorAlternationBy === 'year',
+				row.empty,
+			);
+			const monthAccentColor = getAccentColor(
+				monthPalette,
+				monthIndex,
+				options.colors.alternateAccentColors && options.colorAlternationBy === 'month',
+				row.empty,
+			);
 			monthIndex += 1;
 
 			const monthLabel = row.kind === 'year' ? '' : (row.subLabel ?? row.monthLabel ?? row.label);
@@ -202,12 +210,6 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				if (row.empty) {
 					tr.classList.add('is-empty');
 				}
-				if (itemIndex === itemRows.length - 1) {
-					tr.classList.add('release-timeline-row--month-end');
-				}
-				if (itemIndex === itemRows.length - 1 && rowIndex === yearGroup.length - 1) {
-					tr.classList.add('release-timeline-row--year-end');
-				}
 
 				if (!yearCellDrawn) {
 					const yearCell = createCell('th', row.year, 'release-timeline-period release-timeline-period--year');
@@ -215,9 +217,15 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.rowSpan = yearRowSpan;
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
-					yearCell.style.setProperty('--release-timeline-accent', accentColor);
 					yearCell.style.paddingRight = '0.85rem';
 					tr.appendChild(yearCell);
+
+					const yearBarCell = document.createElement('td');
+					yearBarCell.classList.add('release-timeline-year-bar');
+					yearBarCell.rowSpan = yearRowSpan;
+					yearBarCell.style.backgroundColor = yearAccentColor;
+					tr.appendChild(yearBarCell);
+
 					yearCellDrawn = true;
 				}
 
@@ -227,19 +235,18 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.rowSpan = monthRows;
 					monthCell.dataset.releaseKind = row.kind;
 					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
-					monthCell.style.setProperty('--release-timeline-accent', accentColor);
 					monthCell.style.paddingRight = '0.75rem';
 					tr.appendChild(monthCell);
 				}
 
 				const accentCell = document.createElement('td');
 				accentCell.classList.add('release-timeline-accent-cell');
-				accentCell.style.backgroundColor = accentColor;
+				accentCell.style.backgroundColor = monthAccentColor;
 				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
-					? createSingleItemRow(itemRecord, accentColor, options.app, options.hoverParent)
-					: createItemCell(row.items, options.bulletPoints, options.itemLayout, accentColor, options.app, options.hoverParent);
+					? createSingleItemRow(itemRecord, monthAccentColor, options.app, options.hoverParent)
+					: createItemCell(row.items, options.bulletPoints, options.itemLayout, monthAccentColor, options.app, options.hoverParent);
 
 				tr.appendChild(itemCell);
 				tbody.appendChild(tr);
@@ -247,14 +254,24 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 			if (rowIndex < yearGroup.length - 1) {
 				const gapRow = document.createElement('tr');
-				gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap');
+				gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--month-gap');
 				const gapCell = document.createElement('td');
 				gapCell.classList.add('release-timeline-gap');
-				gapCell.setAttribute('colspan', '3');
+				gapCell.setAttribute('colspan', '5');
 				gapRow.appendChild(gapCell);
 				tbody.appendChild(gapRow);
 			}
 		});
+
+		if (yearGroupIndex < yearGroups.length - 1) {
+			const gapRow = document.createElement('tr');
+			gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--year-gap');
+			const gapCell = document.createElement('td');
+			gapCell.classList.add('release-timeline-gap');
+			gapCell.setAttribute('colspan', '5');
+			gapRow.appendChild(gapCell);
+			tbody.appendChild(gapRow);
+		}
 	});
 
 	table.appendChild(tbody);

@@ -7,18 +7,15 @@ export interface ReleaseTimelineSettings {
 	defaultSortOrder: SortDirection;
 	defaultItemLayout: ItemLayout;
 	colorAlternationBy: 'year' | 'month';
+	alternateAccentColors: boolean;
 	defaultWidthPx: number;
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
 	collapseLimit: string;
 	collapseEmptyMonthsWeeklyTimeline: boolean;
 	weekDisplayFormat: WeekDisplayFormat;
-	yearExistingColor: string;
-	yearEmptyColor: string;
-	monthExistingColor: string;
-	monthEmptyColor: string;
-	weekExistingColor: string;
-	weekEmptyColor: string;
+	accentPrimaryColor: string;
+	accentAlternateColor: string;
 }
 
 export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
@@ -26,18 +23,15 @@ export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	defaultSortOrder: 'desc',
 	defaultItemLayout: 'stacked',
 	colorAlternationBy: 'year',
+	alternateAccentColors: true,
 	defaultWidthPx: 900,
 	collapseEmptyYears: false,
 	bulletPoints: true,
 	collapseLimit: '2',
 	collapseEmptyMonthsWeeklyTimeline: true,
 	weekDisplayFormat: 'dateNames',
-	yearExistingColor: '#0BDA51',
-	yearEmptyColor: '#424E59',
-	monthExistingColor: '#0BDA51',
-	monthEmptyColor: '#5E6C7A',
-	weekExistingColor: '#0BDA51',
-	weekEmptyColor: '#E1E1E1',
+	accentPrimaryColor: '#0BDA51',
+	accentAlternateColor: '#5E6C7A',
 };
 
 export class ReleaseTimelineSettingTab extends PluginSettingTab {
@@ -104,6 +98,17 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				dropdown.onChange(async (value: 'year' | 'month') => {
 					this.plugin.settings.colorAlternationBy = value;
 					await this.plugin.saveSettings();
+				});
+
+		new Setting(containerEl)
+				.setName('Alternate accent colors')
+				.setDesc('Turns alternating accent shades on or off.')
+				.addToggle((toggle) => {
+					toggle.setValue(this.plugin.settings.alternateAccentColors);
+					toggle.onChange(async (value) => {
+						this.plugin.settings.alternateAccentColors = value;
+						await this.plugin.saveSettings();
+					});
 				});
 			});
 
@@ -173,7 +178,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			.setName('Week formatting')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('weekNames', 'Week names: W15');
-				dropdown.addOption('dateNames', 'Date names: 11-17');
+				dropdown.addOption('dateNames', 'Date names: 2025-08-19');
 				dropdown.setValue(this.plugin.settings.weekDisplayFormat);
 				dropdown.onChange(async (value: WeekDisplayFormat) => {
 					this.plugin.settings.weekDisplayFormat = value;
@@ -184,67 +189,23 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Timeline colors' });
 
 		new Setting(containerEl)
-			.setName('Year existing accent')
-			.setDesc('Color used for years that contain entries.')
+			.setName('Primary accent')
+			.setDesc('Main color used for accent bars.')
 			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.yearExistingColor);
+				picker.setValue(this.plugin.settings.accentPrimaryColor);
 				picker.onChange(async (value) => {
-					this.plugin.settings.yearExistingColor = value;
+					this.plugin.settings.accentPrimaryColor = value;
 					await this.plugin.saveSettings();
 				});
 			});
 
 		new Setting(containerEl)
-			.setName('Year empty accent')
-			.setDesc('Color used for empty year rows.')
+			.setName('Alternate accent')
+			.setDesc('Secondary color used when alternating accents.')
 			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.yearEmptyColor);
+				picker.setValue(this.plugin.settings.accentAlternateColor);
 				picker.onChange(async (value) => {
-					this.plugin.settings.yearEmptyColor = value;
-					await this.plugin.saveSettings();
-				});
-			});
-
-		new Setting(containerEl)
-			.setName('Month existing accent')
-			.setDesc('Color used for months that contain entries.')
-			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.monthExistingColor);
-				picker.onChange(async (value) => {
-					this.plugin.settings.monthExistingColor = value;
-					await this.plugin.saveSettings();
-				});
-			});
-
-		new Setting(containerEl)
-			.setName('Month empty accent')
-			.setDesc('Color used for empty month rows.')
-			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.monthEmptyColor);
-				picker.onChange(async (value) => {
-					this.plugin.settings.monthEmptyColor = value;
-					await this.plugin.saveSettings();
-				});
-			});
-
-		new Setting(containerEl)
-			.setName('Week existing accent')
-			.setDesc('Color used for weeks that contain entries.')
-			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.weekExistingColor);
-				picker.onChange(async (value) => {
-					this.plugin.settings.weekExistingColor = value;
-					await this.plugin.saveSettings();
-				});
-			});
-
-		new Setting(containerEl)
-			.setName('Week empty accent')
-			.setDesc('Color used for empty week rows.')
-			.addColorPicker((picker) => {
-				picker.setValue(this.plugin.settings.weekEmptyColor);
-				picker.onChange(async (value) => {
-					this.plugin.settings.weekEmptyColor = value;
+					this.plugin.settings.accentAlternateColor = value;
 					await this.plugin.saveSettings();
 				});
 			});

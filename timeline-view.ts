@@ -61,6 +61,24 @@ function normalizeColorAlternation(value: string, fallback: 'year' | 'month'): '
 	return value === 'year' || value === 'month' ? value : fallback;
 }
 
+function readToggle(value: unknown, fallback: boolean): boolean {
+	if (typeof value === 'boolean') {
+		return value;
+	}
+
+	if (value !== null && value !== undefined) {
+		const text = String(value).trim().toLowerCase();
+		if (text === 'true') {
+			return true;
+		}
+		if (text === 'false') {
+			return false;
+		}
+	}
+
+	return fallback;
+}
+
 function normalizeWidth(value: unknown, fallback: number): number {
 	if (typeof value === 'number' && Number.isFinite(value)) {
 		return value;
@@ -194,6 +212,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const mode = normalizeMode(readString(viewConfig.get('mode'), plugin.settings.defaultTimelineMode), plugin.settings.defaultTimelineMode);
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
 	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
+	const alternateAccentColors = readToggle(viewConfig.get('alternateAccentColors'), plugin.settings.alternateAccentColors);
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
@@ -204,6 +223,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		mode,
 		sortDirection,
 		itemLayout,
+		alternateAccentColors,
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -243,6 +263,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
 			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
 			colorAlternationBy: normalizeColorAlternation(readString(this.config.get('colorAlternationBy'), this.plugin.settings.colorAlternationBy), this.plugin.settings.colorAlternationBy),
+			alternateAccentColors: readToggle(this.config.get('alternateAccentColors'), this.plugin.settings.alternateAccentColors),
 			widthPx: options.widthPx,
 			colors: this.plugin.settings,
 			app: this.plugin.app,
