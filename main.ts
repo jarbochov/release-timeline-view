@@ -18,7 +18,7 @@ export default class ReleaseTimeline extends Plugin {
 
 	private registerReleaseTimelineView() {
 		const registered = this.registerBasesView(RELEASE_TIMELINE_VIEW_TYPE, {
-			name: 'Release Timeline',
+			name: 'Release Timeline Base',
 			icon: 'lucide-calendar-range',
 			factory: (controller, containerEl) => new ReleaseTimelineBasesView(controller, containerEl, this),
 			options: () => [
@@ -94,7 +94,7 @@ export default class ReleaseTimeline extends Plugin {
 		});
 
 		if (!registered) {
-			new Notice('Release Timeline requires Bases to be enabled in Obsidian 1.10 or newer.');
+			new Notice('Release Timeline Base requires Bases to be enabled in Obsidian 1.10 or newer.');
 		}
 	}
 

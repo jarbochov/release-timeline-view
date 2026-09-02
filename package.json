@@ -1,5 +1,5 @@
 {
-  "name": "release-timeline",
+  "name": "release-timeline-base",
   "version": "2.0.0",
   "description": "Release timeline rendered as a custom Obsidian Bases view.",
   "main": "main.js",
@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cakechaser/obsidian-release-timeline.git"
+    "url": "git+https://github.com/jarbochov/obsidian-release-timeline.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cakechaser/obsidian-release-timeline/issues"
+    "url": "https://github.com/jarbochov/obsidian-release-timeline/issues"
   },
-  "homepage": "https://github.com/cakechaser/obsidian-release-timeline#readme",
+  "homepage": "https://github.com/jarbochov/obsidian-release-timeline#readme",
   "devDependencies": {}
 }
