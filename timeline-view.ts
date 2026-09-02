@@ -138,6 +138,9 @@ export class ReleaseTimelineBasesView extends BasesView {
 		}
 
 		const rows = buildTimelineRows(records, options);
-		this.rootEl.appendChild(renderTimelineTable(rows, { bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints) }));
+		this.rootEl.appendChild(renderTimelineTable(rows, {
+			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
+			colors: this.plugin.settings,
+		}));
 	}
 }

@@ -1,7 +1,9 @@
 import { TimelineRecord, TimelineRow } from './timeline-core';
+import type { ReleaseTimelineSettings } from './settings';
 
 export interface TimelineRenderOptions {
 	bulletPoints: boolean;
+	colors: ReleaseTimelineSettings;
 }
 
 export function createErrorTable(message: string): HTMLTableElement {
@@ -71,6 +73,12 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 	const table = document.createElement('table');
 	table.classList.add('release-timeline', 'release-timeline-bases');
+	table.style.setProperty('--release-timeline-year-existing', options.colors.yearExistingColor);
+	table.style.setProperty('--release-timeline-year-empty', options.colors.yearEmptyColor);
+	table.style.setProperty('--release-timeline-month-existing', options.colors.monthExistingColor);
+	table.style.setProperty('--release-timeline-month-empty', options.colors.monthEmptyColor);
+	table.style.setProperty('--release-timeline-week-existing', options.colors.weekExistingColor);
+	table.style.setProperty('--release-timeline-week-empty', options.colors.weekEmptyColor);
 
 	const thead = document.createElement('thead');
 	const headerRow = document.createElement('tr');
@@ -98,10 +106,13 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 		const periodCell = document.createElement('th');
 		periodCell.scope = 'row';
 		periodCell.classList.add('release-timeline-period', `release-timeline-period--${row.kind}`);
+		periodCell.dataset.releaseKind = row.kind;
 		if (row.empty) {
 			periodCell.classList.add('year-nonexisting');
+			periodCell.dataset.state = 'empty';
 		} else {
 			periodCell.classList.add('year-existing');
+			periodCell.dataset.state = 'existing';
 		}
 		periodCell.textContent = row.label;
 

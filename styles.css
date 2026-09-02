@@ -1,48 +1,51 @@
 table.release-timeline {
-	width: 100%;
-	margin: 0.75rem 0;
-	border-collapse: collapse;
-	font-size: 0.9em;
-}
-
-.release-timeline th,
-.release-timeline td {
-	padding: 0.45rem 0.6rem;
-	vertical-align: top;
-	border-bottom: 1px solid var(--background-modifier-border);
+	flex: 1 1 100%;
+	margin: 0.5em auto;
+	padding: 0.75em 1em;
+	font-size: 80%;
+	line-height: 0.9;
+	border-collapse: separate !important;
+	border-spacing: 0 1px !important;
+	background-color: transparent;
+	border: 1px solid var(--background-modifier-border) !important;
+	border-radius: 6px;
+	display: table;
 }
 
 .release-timeline thead th {
 	text-align: left;
 	font-weight: 700;
-	border-bottom: 2px solid var(--background-modifier-border);
+	border: none;
+	padding: 0.4em !important;
+	background: none;
+	font: inherit;
+	color: inherit;
 }
 
-.release-timeline-period {
-	white-space: nowrap;
-	font-variant-numeric: tabular-nums;
-	width: 1%;
+.release-timeline tbody {
+	display: table-row-group;
+	vertical-align: middle;
 }
 
-.release-timeline-items {
-	width: auto;
+.release-timeline tr {
+	display: table-row;
 }
 
-.release-timeline-period.year-existing {
-	color: var(--text-normal);
+.release-timeline th,
+.release-timeline td {
+	text-align: left;
+	display: table-cell;
+	vertical-align: inherit;
+	border: none;
+	padding: 0.4em !important;
+	background: none;
+	font: inherit;
+	color: inherit;
 }
 
-.release-timeline-period.year-nonexisting {
-	color: var(--text-muted);
-}
-
-.release-timeline-list {
-	margin: 0;
-	padding-left: 1.1rem;
-}
-
-.release-timeline-list li + li {
-	margin-top: 0.15rem;
+.release-timeline th:first-child,
+.release-timeline td:first-child {
+	padding-left: 0.4em;
 }
 
 .release-timeline a.internal-link {
@@ -53,6 +56,75 @@ table.release-timeline {
 
 .release-timeline a.internal-link:hover {
 	text-decoration: underline;
+}
+
+.release-timeline .release-timeline-list {
+	margin: 0;
+	padding-left: 1.1rem;
+}
+
+.release-timeline .release-timeline-list li + li {
+	margin-top: 0.15rem;
+}
+
+.release-timeline .release-timeline-items {
+	font-weight: 700;
+}
+
+.release-timeline .release-timeline-period {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+	border-right: 1.4em solid var(--background-modifier-border);
+}
+
+.release-timeline .release-timeline-period[data-state='existing'][data-release-kind='year'],
+.release-timeline .release-timeline-period.year-existing.release-timeline-period--year {
+	border-right-color: var(--release-timeline-year-existing, #0BDA51);
+}
+
+.release-timeline .release-timeline-period[data-state='empty'][data-release-kind='year'],
+.release-timeline .release-timeline-period.year-nonexisting.release-timeline-period--year {
+	border-right-color: var(--release-timeline-year-empty, #424E59);
+}
+
+.release-timeline .release-timeline-period[data-state='existing'][data-release-kind='month'],
+.release-timeline .release-timeline-period.year-existing.release-timeline-period--month {
+	border-right-color: var(--release-timeline-month-existing, #0BDA51);
+}
+
+.release-timeline .release-timeline-period[data-state='empty'][data-release-kind='month'],
+.release-timeline .release-timeline-period.year-nonexisting.release-timeline-period--month {
+	border-right-color: var(--release-timeline-month-empty, #5E6C7A);
+}
+
+.release-timeline .release-timeline-period[data-state='existing'][data-release-kind='week'],
+.release-timeline .release-timeline-period.year-existing.release-timeline-period--week {
+	border-right-color: var(--release-timeline-week-existing, #0BDA51);
+}
+
+.release-timeline .release-timeline-period[data-state='empty'][data-release-kind='week'],
+.release-timeline .release-timeline-period.year-nonexisting.release-timeline-period--week {
+	border-right-color: var(--release-timeline-week-empty, #E1E1E1);
+}
+
+.theme-dark .release-timeline .release-timeline-period[data-state='empty'][data-release-kind='year'],
+.theme-dark .release-timeline .release-timeline-period.year-nonexisting.release-timeline-period--year {
+	border-right-color: var(--release-timeline-year-empty, #424E59);
+}
+
+.theme-light .release-timeline .release-timeline-period[data-state='empty'][data-release-kind='year'],
+.theme-light .release-timeline .release-timeline-period.year-nonexisting.release-timeline-period--year {
+	border-right-color: var(--release-timeline-year-empty, #E1E1E1);
+}
+
+.release-timeline .release-timeline-period.year-existing,
+.release-timeline .release-timeline-period.year-nonexisting {
+	color: inherit;
+}
+
+.release-timeline .is-empty {
+	color: var(--text-muted);
+	font-style: italic;
 }
 
 .release-timeline-error td {

@@ -42,6 +42,7 @@ View settings:
 - `collapseLimit`: minimum empty-year run length to collapse
 - `collapseEmptyMonths`: reduce empty months in week mode
 - `weekDisplayFormat`: `weekNames` (`W15`) or `dateNames` (`11-17`)
+- color pickers for year, month, and week accents so embeds can match the original wiki-like styling
 
 ## Quick compile and test
 
