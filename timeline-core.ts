@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 export type TimelineMode = 'year' | 'month' | 'week';
 export type SortDirection = 'asc' | 'desc';
 export type WeekDisplayFormat = 'weekNames' | 'dateNames';
+export type ItemLayout = 'stacked' | 'inline';
 
 export interface TimelineRecord {
 	filePath: string;
@@ -24,6 +25,7 @@ export interface TimelineRow {
 export interface TimelineBuildOptions {
 	mode: TimelineMode;
 	sortDirection: SortDirection;
+	itemLayout: ItemLayout;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;

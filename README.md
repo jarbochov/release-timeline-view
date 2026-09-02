@@ -38,6 +38,7 @@ View settings:
 - `mode`: `year`, `month`, or `week`
 - `sortDirection`: `asc` or `desc`
 - `bulletPoints`: show bullets for multi-item periods
+- `itemLayout`: `stacked` for one item per line, or `inline` for comma-separated entries
 - `collapseEmptyYears`: compress long runs of empty years in year mode
 - `collapseLimit`: minimum empty-year run length to collapse
 - `collapseEmptyMonths`: reduce empty months in week mode

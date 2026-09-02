@@ -1,6 +1,6 @@
 import { App, BasesEntry, BasesView, QueryController } from 'obsidian';
 import type ReleaseTimeline from './main';
-import { buildTimelineRows, parseTimelineDate, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
+import { buildTimelineRows, parseTimelineDate, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
 
 export const RELEASE_TIMELINE_VIEW_TYPE = 'release-timeline';
@@ -35,6 +35,10 @@ function normalizeSortDirection(value: string, fallback: SortDirection): SortDir
 
 function normalizeWeekDisplayFormat(value: string, fallback: WeekDisplayFormat): WeekDisplayFormat {
 	return value === 'weekNames' || value === 'dateNames' ? value : fallback;
+}
+
+function normalizeItemLayout(value: string, fallback: ItemLayout): ItemLayout {
+	return value === 'stacked' || value === 'inline' ? value : fallback;
 }
 
 function readNumber(value: unknown, fallback: number): number {
@@ -154,6 +158,7 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['config']): TimelineBuildOptions {
 	const mode = normalizeMode(readString(viewConfig.get('mode'), plugin.settings.defaultTimelineMode), plugin.settings.defaultTimelineMode);
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
+	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
@@ -162,6 +167,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	return {
 		mode,
 		sortDirection,
+		itemLayout,
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -197,6 +203,7 @@ export class ReleaseTimelineBasesView extends BasesView {
 		const rows = buildTimelineRows(records, options);
 		this.rootEl.appendChild(renderTimelineTable(rows, {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
+			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
 			colors: this.plugin.settings,
 		}));
 	}

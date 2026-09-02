@@ -63,8 +63,22 @@ table.release-timeline {
 	padding-left: 1.1rem;
 }
 
+.release-timeline .release-timeline-list.no-bullets {
+	list-style: none;
+	padding-left: 0;
+}
+
 .release-timeline .release-timeline-list li + li {
 	margin-top: 0.15rem;
+}
+
+.release-timeline[data-item-layout='stacked'] .release-timeline-items {
+	padding-top: 0.15rem;
+	padding-bottom: 0.15rem;
+}
+
+.release-timeline[data-item-layout='inline'] .release-timeline-items {
+	white-space: normal;
 }
 
 .release-timeline .release-timeline-items {

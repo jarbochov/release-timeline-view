@@ -1,10 +1,11 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ReleaseTimeline from './main';
-import { SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';
+import { ItemLayout, SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';
 
 export interface ReleaseTimelineSettings {
 	defaultTimelineMode: TimelineMode;
 	defaultSortOrder: SortDirection;
+	defaultItemLayout: ItemLayout;
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
 	collapseLimit: string;
@@ -21,6 +22,7 @@ export interface ReleaseTimelineSettings {
 export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	defaultTimelineMode: 'year',
 	defaultSortOrder: 'desc',
+	defaultItemLayout: 'stacked',
 	collapseEmptyYears: false,
 	bulletPoints: true,
 	collapseLimit: '2',
@@ -71,6 +73,19 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				dropdown.setValue(this.plugin.settings.defaultSortOrder);
 				dropdown.onChange(async (value: SortDirection) => {
 					this.plugin.settings.defaultSortOrder = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Default item layout')
+			.setDesc('Controls whether multiple items in a period stack vertically or appear inline.')
+			.addDropdown((dropdown) => {
+				dropdown.addOption('stacked', 'Stacked');
+				dropdown.addOption('inline', 'Inline with commas');
+				dropdown.setValue(this.plugin.settings.defaultItemLayout);
+				dropdown.onChange(async (value: ItemLayout) => {
+					this.plugin.settings.defaultItemLayout = value;
 					await this.plugin.saveSettings();
 				});
 			});

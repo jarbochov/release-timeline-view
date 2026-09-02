@@ -3,6 +3,7 @@ import type { ReleaseTimelineSettings } from './settings';
 
 export interface TimelineRenderOptions {
 	bulletPoints: boolean;
+	itemLayout: 'stacked' | 'inline';
 	colors: ReleaseTimelineSettings;
 }
 
@@ -30,7 +31,7 @@ function createTimelineLink(record: TimelineRecord): HTMLAnchorElement {
 	return link;
 }
 
-function createEntryCell(records: TimelineRecord[], bulletPoints: boolean): HTMLTableCellElement {
+function createEntryCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline'): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 
@@ -40,9 +41,10 @@ function createEntryCell(records: TimelineRecord[], bulletPoints: boolean): HTML
 		return cell;
 	}
 
-	if (bulletPoints && records.length > 1) {
+	if (itemLayout === 'stacked' && records.length > 1) {
 		const list = document.createElement('ul');
 		list.classList.add('release-timeline-list');
+		list.classList.add(bulletPoints ? 'has-bullets' : 'no-bullets');
 
 		for (const record of records) {
 			const item = document.createElement('li');
@@ -57,7 +59,7 @@ function createEntryCell(records: TimelineRecord[], bulletPoints: boolean): HTML
 	const fragment = document.createDocumentFragment();
 	records.forEach((record, index) => {
 		if (index > 0) {
-			fragment.appendChild(document.createTextNode(bulletPoints ? ' • ' : ', '));
+			fragment.appendChild(document.createTextNode(', '));
 		}
 		fragment.appendChild(createTimelineLink(record));
 	});
@@ -79,6 +81,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	table.style.setProperty('--release-timeline-month-empty', options.colors.monthEmptyColor);
 	table.style.setProperty('--release-timeline-week-existing', options.colors.weekExistingColor);
 	table.style.setProperty('--release-timeline-week-empty', options.colors.weekEmptyColor);
+	table.dataset.itemLayout = options.itemLayout;
 
 	const thead = document.createElement('thead');
 	const headerRow = document.createElement('tr');
@@ -117,7 +120,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 		periodCell.textContent = row.label;
 
 		tr.appendChild(periodCell);
-		tr.appendChild(createEntryCell(row.items, options.bulletPoints));
+		tr.appendChild(createEntryCell(row.items, options.bulletPoints, options.itemLayout));
 		tbody.appendChild(tr);
 	});
 

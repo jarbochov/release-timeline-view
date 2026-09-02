@@ -56,9 +56,19 @@ export default class ReleaseTimeline extends Plugin {
 					},
 				},
 				{
+					type: 'dropdown',
+					key: 'itemLayout',
+					displayName: 'Item layout',
+					default: this.settings.defaultItemLayout,
+					options: {
+						stacked: 'Stacked',
+						inline: 'Inline with commas',
+					},
+				},
+				{
 					type: 'toggle',
 					key: 'bulletPoints',
-					displayName: 'Bullet points',
+					displayName: 'Bullet points in stacked layout',
 					default: this.settings.bulletPoints,
 				},
 				{
