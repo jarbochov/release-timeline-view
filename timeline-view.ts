@@ -10,16 +10,32 @@ function readBoolean(value: unknown, fallback: boolean): boolean {
 		return value;
 	}
 
-	if (typeof value === 'string') {
-		return value.toLowerCase() === 'true';
+	if (value !== null && value !== undefined) {
+		const text = String(value).trim().toLowerCase();
+		if (text === 'true') {
+			return true;
+		}
+		if (text === 'false') {
+			return false;
+		}
 	}
 
 	return fallback;
 }
 
 function readString(value: unknown, fallback: string): string {
-	if (typeof value === 'string' && value.trim().length > 0) {
-		return value;
+	if (typeof value === 'string') {
+		const text = value.trim();
+		if (text.length > 0) {
+			return text;
+		}
+	}
+
+	if (value !== null && value !== undefined) {
+		const text = String(value).trim();
+		if (text.length > 0 && text !== '[object Object]') {
+			return text;
+		}
 	}
 
 	return fallback;
@@ -50,8 +66,8 @@ function normalizeWidth(value: unknown, fallback: number): number {
 		return value;
 	}
 
-	if (typeof value === 'string') {
-		const parsed = Number.parseInt(value, 10);
+	if (value !== null && value !== undefined) {
+		const parsed = Number.parseInt(String(value), 10);
 		if (Number.isFinite(parsed)) {
 			return parsed;
 		}
@@ -65,8 +81,8 @@ function readNumber(value: unknown, fallback: number): number {
 		return value;
 	}
 
-	if (typeof value === 'string') {
-		const parsed = Number.parseInt(value, 10);
+	if (value !== null && value !== undefined) {
+		const parsed = Number.parseInt(String(value), 10);
 		if (Number.isFinite(parsed)) {
 			return parsed;
 		}

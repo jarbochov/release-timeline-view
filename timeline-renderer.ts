@@ -12,6 +12,13 @@ export interface TimelineRenderOptions {
 	hoverParent: HoverParent;
 }
 
+function createCell(tag: 'th' | 'td', text: string, className: string): HTMLTableCellElement {
+	const cell = document.createElement(tag);
+	cell.className = className;
+	cell.textContent = text;
+	return cell;
+}
+
 export function createErrorTable(message: string): HTMLTableElement {
 	const table = document.createElement('table');
 	table.classList.add('release-timeline', 'release-timeline-error');
@@ -19,7 +26,7 @@ export function createErrorTable(message: string): HTMLTableElement {
 	const tbody = document.createElement('tbody');
 	const row = document.createElement('tr');
 	const cell = document.createElement('td');
-	cell.setAttribute('colspan', '3');
+	cell.setAttribute('colspan', '4');
 	cell.textContent = message;
 	row.appendChild(cell);
 	tbody.appendChild(row);
@@ -54,9 +61,11 @@ function createTimelineLink(record: TimelineRecord, app: App, hoverParent: Hover
 	return link;
 }
 
-function createEntryCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', app: App, hoverParent: HoverParent): HTMLTableCellElement {
+function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
+	cell.style.backgroundColor = 'var(--background-primary)';
+	cell.style.boxShadow = `inset 0.6rem 0 0 ${accentColor}`;
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -64,16 +73,16 @@ function createEntryCell(records: TimelineRecord[], bulletPoints: boolean, itemL
 		return cell;
 	}
 
-	if (itemLayout === 'stacked' && records.length > 1) {
+	if (itemLayout === 'stacked') {
 		const list = document.createElement('ul');
 		list.classList.add('release-timeline-list');
 		list.classList.toggle('has-bullets', bulletPoints);
 		list.classList.toggle('no-bullets', !bulletPoints);
 
 		for (const record of records) {
-			const item = document.createElement('li');
-			item.appendChild(createTimelineLink(record, app, hoverParent));
-			list.appendChild(item);
+			const li = document.createElement('li');
+			li.appendChild(createTimelineLink(record, app, hoverParent));
+			list.appendChild(li);
 		}
 
 		cell.appendChild(list);
@@ -88,16 +97,31 @@ function createEntryCell(records: TimelineRecord[], bulletPoints: boolean, itemL
 		fragment.appendChild(createTimelineLink(record, app, hoverParent));
 	});
 	cell.appendChild(fragment);
-
 	return cell;
 }
 
-function getModePalette(colors: ReleaseTimelineSettings, mode: TimelineRow['kind']): [string, string] {
-	if (mode === 'month') {
+function createSingleItemRow(record: TimelineRecord | null, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
+	const cell = document.createElement('td');
+	cell.classList.add('release-timeline-items');
+cell.style.backgroundColor = 'var(--background-primary)';
+cell.style.boxShadow = `inset 0.6rem 0 0 ${accentColor}`;
+
+if (!record) {
+	cell.classList.add('is-empty');
+	cell.textContent = '—';
+		return cell;
+	}
+
+	cell.appendChild(createTimelineLink(record, app, hoverParent));
+	return cell;
+}
+
+function getPalette(colors: ReleaseTimelineSettings, kind: TimelineRow['kind']): [string, string] {
+	if (kind === 'month') {
 		return [colors.monthExistingColor, colors.monthEmptyColor];
 	}
 
-	if (mode === 'week') {
+	if (kind === 'week') {
 		return [colors.weekExistingColor, colors.weekEmptyColor];
 	}
 
@@ -108,20 +132,12 @@ function getAccentColor(palette: [string, string], index: number): string {
 	return index % 2 === 0 ? palette[0] : palette[1];
 }
 
-function buildPeriodCell(label: string, kind: TimelineRow['kind'], empty: boolean, accentColor: string, rowSpan?: number): HTMLTableCellElement {
-	const cell = document.createElement('th');
-	cell.scope = 'row';
-	cell.classList.add('release-timeline-period', `release-timeline-period--${kind}`);
-	cell.dataset.releaseKind = kind;
-	cell.dataset.state = empty ? 'empty' : 'existing';
-	cell.style.setProperty('--release-timeline-accent', accentColor);
-	cell.textContent = label;
-
-	if (rowSpan && rowSpan > 1) {
-		cell.rowSpan = rowSpan;
+function rowCountForMonth(row: TimelineRow, itemLayout: 'stacked' | 'inline'): number {
+	if (itemLayout === 'stacked') {
+		return Math.max(row.items.length, 1);
 	}
 
-	return cell;
+	return 1;
 }
 
 function groupRowsByYear(rows: TimelineRow[]): TimelineRow[][] {
@@ -134,7 +150,6 @@ function groupRowsByYear(rows: TimelineRow[]): TimelineRow[][] {
 			groups.push(currentGroup);
 			currentGroup = [];
 		}
-
 		currentYear = row.year;
 		currentGroup.push(row);
 	}
@@ -158,57 +173,67 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	table.style.width = `${options.widthPx}px`;
 	table.style.maxWidth = '100%';
 
-	const thead = document.createElement('thead');
-	const headerRow = document.createElement('tr');
-	const yearHeader = document.createElement('th');
-	yearHeader.scope = 'col';
-	yearHeader.textContent = 'Year';
-	const monthHeader = document.createElement('th');
-	monthHeader.scope = 'col';
-	monthHeader.textContent = rows[0].kind === 'week' ? 'Week' : 'Month';
-	const notesHeader = document.createElement('th');
-	notesHeader.scope = 'col';
-	notesHeader.textContent = 'Notes';
-
-	headerRow.appendChild(yearHeader);
-	headerRow.appendChild(monthHeader);
-	headerRow.appendChild(notesHeader);
-	thead.appendChild(headerRow);
-	table.appendChild(thead);
-
 	const tbody = document.createElement('tbody');
 	const yearGroups = groupRowsByYear(rows);
-	const palette = getModePalette(options.colors, rows[0].kind);
-	let flatIndex = 0;
+	let monthIndex = 0;
 
-	yearGroups.forEach((groupRows, groupIndex) => {
-		groupRows.forEach((row, rowIndex) => {
-			const tr = document.createElement('tr');
-			tr.classList.add('release-timeline-row', `release-timeline-row--${row.kind}`);
-			if (row.empty) {
-				tr.classList.add('is-empty');
-			}
+	yearGroups.forEach((yearGroup, yearGroupIndex) => {
+		const yearRowSpan = yearGroup.reduce((sum, row) => sum + rowCountForMonth(row, options.itemLayout), 0);
+		const palette = getPalette(options.colors, yearGroup[0].kind);
+		let yearCellDrawn = false;
 
-			const accentIndex = options.colorAlternationBy === 'year' ? groupIndex : flatIndex;
-			const accentColor = getAccentColor(palette, accentIndex);
+		yearGroup.forEach((row) => {
+			const monthRows = rowCountForMonth(row, options.itemLayout);
+			const accentColor = getAccentColor(palette, options.colorAlternationBy === 'year' ? yearGroupIndex : monthIndex);
+			monthIndex += 1;
 
-			if (rowIndex === 0) {
-				const yearCell = buildPeriodCell(row.year, row.kind, row.empty, accentColor, groupRows.length);
-				tr.appendChild(yearCell);
-			}
+			const monthLabel = row.kind === 'year' ? '' : (row.subLabel ?? row.monthLabel ?? row.label);
+			const itemRows = options.itemLayout === 'stacked' ? (row.items.length > 0 ? row.items : [null]) : [row.items[0] ?? null];
 
-			const monthLabel = row.subLabel ?? '';
-			const monthCell = buildPeriodCell(monthLabel, row.kind, row.empty, accentColor);
-			monthCell.classList.add('release-timeline-period--secondary');
-			tr.appendChild(monthCell);
-			tr.appendChild(createEntryCell(row.items, options.bulletPoints, options.itemLayout, options.app, options.hoverParent));
+			itemRows.forEach((itemRecord, itemIndex) => {
+				const tr = document.createElement('tr');
+				tr.classList.add('release-timeline-row', `release-timeline-row--${row.kind}`);
+				if (row.empty) {
+					tr.classList.add('is-empty');
+				}
 
-			tbody.appendChild(tr);
-			flatIndex += 1;
+				if (!yearCellDrawn) {
+					const yearCell = createCell('th', row.year, 'release-timeline-period release-timeline-period--year');
+					yearCell.scope = 'row';
+					yearCell.rowSpan = yearRowSpan;
+					yearCell.dataset.releaseKind = row.kind;
+					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
+					yearCell.style.setProperty('--release-timeline-accent', accentColor);
+					tr.appendChild(yearCell);
+					yearCellDrawn = true;
+				}
+
+				if (itemIndex === 0) {
+					const monthCell = createCell('th', monthLabel, 'release-timeline-period release-timeline-period--secondary');
+					monthCell.scope = 'row';
+					monthCell.rowSpan = monthRows;
+					monthCell.dataset.releaseKind = row.kind;
+					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
+					monthCell.style.setProperty('--release-timeline-accent', accentColor);
+					tr.appendChild(monthCell);
+
+					const accentCell = document.createElement('td');
+					accentCell.classList.add('release-timeline-accent-cell');
+					accentCell.rowSpan = monthRows;
+					accentCell.style.backgroundColor = accentColor;
+					tr.appendChild(accentCell);
+				}
+
+				const itemCell = options.itemLayout === 'stacked'
+					? createSingleItemRow(itemRecord, accentColor, options.app, options.hoverParent)
+					: createItemCell(row.items, options.bulletPoints, options.itemLayout, accentColor, options.app, options.hoverParent);
+
+				tr.appendChild(itemCell);
+				tbody.appendChild(tr);
+			});
 		});
 	});
 
 	table.appendChild(tbody);
-
 	return table;
 }
