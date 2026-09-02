@@ -6,6 +6,8 @@ export interface ReleaseTimelineSettings {
 	defaultTimelineMode: TimelineMode;
 	defaultSortOrder: SortDirection;
 	defaultItemLayout: ItemLayout;
+	colorAlternationBy: 'year' | 'month';
+	defaultWidthPx: number;
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
 	collapseLimit: string;
@@ -23,6 +25,8 @@ export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	defaultTimelineMode: 'year',
 	defaultSortOrder: 'desc',
 	defaultItemLayout: 'stacked',
+	colorAlternationBy: 'year',
+	defaultWidthPx: 900,
 	collapseEmptyYears: false,
 	bulletPoints: true,
 	collapseLimit: '2',
@@ -86,6 +90,32 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				dropdown.setValue(this.plugin.settings.defaultItemLayout);
 				dropdown.onChange(async (value: ItemLayout) => {
 					this.plugin.settings.defaultItemLayout = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Color alternation')
+			.setDesc('Alternates the color band by year or by month.')
+			.addDropdown((dropdown) => {
+				dropdown.addOption('year', 'By year');
+				dropdown.addOption('month', 'By month');
+				dropdown.setValue(this.plugin.settings.colorAlternationBy);
+				dropdown.onChange(async (value: 'year' | 'month') => {
+					this.plugin.settings.colorAlternationBy = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Default width')
+			.setDesc('Sets the timeline width in pixels.')
+			.addSlider((slider) => {
+				slider.setLimits(400, 1600, 25);
+				slider.setValue(this.plugin.settings.defaultWidthPx);
+				slider.setDynamicTooltip();
+				slider.onChange(async (value) => {
+					this.plugin.settings.defaultWidthPx = value;
 					await this.plugin.saveSettings();
 				});
 			});

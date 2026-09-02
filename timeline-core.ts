@@ -14,6 +14,7 @@ export interface TimelineRecord {
 export interface TimelineRow {
 	kind: TimelineMode;
 	label: string;
+	subLabel?: string;
 	year: string;
 	month?: string;
 	week?: string;
@@ -26,6 +27,7 @@ export interface TimelineBuildOptions {
 	mode: TimelineMode;
 	sortDirection: SortDirection;
 	itemLayout: ItemLayout;
+	widthPx: number;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;
@@ -97,6 +99,7 @@ function buildYearRows(records: TimelineRecord[], options: TimelineBuildOptions)
 		rows.push({
 			kind: 'year',
 			label: String(year),
+			subLabel: '',
 			year: String(year),
 			items,
 			empty: items.length === 0,
@@ -178,6 +181,7 @@ function buildMonthRows(records: TimelineRecord[], options: TimelineBuildOptions
 		rows.push({
 			kind: 'month',
 			label: `${month.year} / ${monthLabel(month)}`,
+			subLabel: monthLabel(month),
 			year: String(month.year),
 			month: key,
 			monthLabel: monthLabel(month),
@@ -254,6 +258,7 @@ function buildWeekRows(records: TimelineRecord[], options: TimelineBuildOptions)
 		rows.push({
 			kind: 'week',
 			label: `${anchor.year} / ${monthLabel(anchor)} / ${weekText}`,
+			subLabel: weekText,
 			year: String(anchor.year),
 			month: `${anchor.year}-${String(anchor.month).padStart(2, '0')}`,
 			monthLabel: monthLabel(anchor),

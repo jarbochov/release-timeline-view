@@ -89,6 +89,15 @@ table.release-timeline {
 	font-variant-numeric: tabular-nums;
 	white-space: nowrap;
 	border-right: 1.4em solid var(--background-modifier-border);
+	vertical-align: top;
+}
+
+.release-timeline .release-timeline-period--year {
+	text-align: right;
+}
+
+.release-timeline .release-timeline-period--secondary {
+	text-align: left;
 }
 
 .release-timeline .release-timeline-period[data-state='existing'][data-release-kind='year'],
@@ -134,6 +143,11 @@ table.release-timeline {
 .release-timeline .release-timeline-period.year-existing,
 .release-timeline .release-timeline-period.year-nonexisting {
 	color: inherit;
+}
+
+.release-timeline[data-color-alternation='year'] .release-timeline-period--year,
+.release-timeline[data-color-alternation='month'] .release-timeline-period--secondary {
+	font-weight: 700;
 }
 
 .release-timeline .is-empty {

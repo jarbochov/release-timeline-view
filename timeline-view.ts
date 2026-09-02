@@ -1,4 +1,4 @@
-import { App, BasesEntry, BasesView, QueryController } from 'obsidian';
+import { App, BasesEntry, BasesView, HoverParent, QueryController } from 'obsidian';
 import type ReleaseTimeline from './main';
 import { buildTimelineRows, parseTimelineDate, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
@@ -39,6 +39,25 @@ function normalizeWeekDisplayFormat(value: string, fallback: WeekDisplayFormat):
 
 function normalizeItemLayout(value: string, fallback: ItemLayout): ItemLayout {
 	return value === 'stacked' || value === 'inline' ? value : fallback;
+}
+
+function normalizeColorAlternation(value: string, fallback: 'year' | 'month'): 'year' | 'month' {
+	return value === 'year' || value === 'month' ? value : fallback;
+}
+
+function normalizeWidth(value: unknown, fallback: number): number {
+	if (typeof value === 'number' && Number.isFinite(value)) {
+		return value;
+	}
+
+	if (typeof value === 'string') {
+		const parsed = Number.parseInt(value, 10);
+		if (Number.isFinite(parsed)) {
+			return parsed;
+		}
+	}
+
+	return fallback;
 }
 
 function readNumber(value: unknown, fallback: number): number {
@@ -163,6 +182,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
 	const weekDisplayFormat = normalizeWeekDisplayFormat(readString(viewConfig.get('weekDisplayFormat'), plugin.settings.weekDisplayFormat), plugin.settings.weekDisplayFormat);
+	const widthPx = Math.max(400, normalizeWidth(viewConfig.get('widthPx'), plugin.settings.defaultWidthPx));
 
 	return {
 		mode,
@@ -172,10 +192,11 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		collapseLimit,
 		collapseEmptyMonths,
 		weekDisplayFormat,
+		widthPx,
 	};
 }
 
-export class ReleaseTimelineBasesView extends BasesView {
+export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 	readonly type = RELEASE_TIMELINE_VIEW_TYPE;
 
 	private readonly plugin: ReleaseTimeline;
@@ -189,6 +210,7 @@ export class ReleaseTimelineBasesView extends BasesView {
 
 	public onDataUpdated(): void {
 		this.rootEl.empty();
+		this.rootEl.style.setProperty('max-width', `${this.plugin.settings.defaultWidthPx}px`);
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
@@ -204,7 +226,11 @@ export class ReleaseTimelineBasesView extends BasesView {
 		this.rootEl.appendChild(renderTimelineTable(rows, {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
 			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
+			colorAlternationBy: normalizeColorAlternation(readString(this.config.get('colorAlternationBy'), this.plugin.settings.colorAlternationBy), this.plugin.settings.colorAlternationBy),
+			widthPx: options.widthPx,
 			colors: this.plugin.settings,
+			app: this.plugin.app,
+			hoverParent: this,
 		}));
 	}
 }

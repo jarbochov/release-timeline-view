@@ -1,8 +1,8 @@
-# Release Timeline Base for Obsidian Bases
+# Release Timeline for Obsidian Bases
 
 This plugin renders release-style timelines as a custom [Obsidian Bases](https://help.obsidian.md/bases) view.
 
-It no longer depends on Dataview. Create a Base, filter the notes you want, and select the `Release Timeline Base` custom view for that Base.
+It no longer depends on Dataview. Create a Base, filter the notes you want, and select the `Release Timeline` custom view for that Base.
 
 This project is based on the original release timeline plugin by cakechaser and has been adapted for native Obsidian Bases support.
 
@@ -26,7 +26,7 @@ filters:
     - note.releaseDate
 views:
   - type: release-timeline
-    name: Release Timeline Base
+    name: Release Timeline
     mode: year
     dateProperty: note.releaseDate
     labelProperty: file.name
@@ -43,7 +43,11 @@ View settings:
 - `collapseLimit`: minimum empty-year run length to collapse
 - `collapseEmptyMonths`: reduce empty months in week mode
 - `weekDisplayFormat`: `weekNames` (`W15`) or `dateNames` (`11-17`)
+- `colorAlternationBy`: alternate the color guide by year or by month
+- `widthPx`: set the rendered view width in pixels
 - color pickers for year, month, and week accents so embeds can match the original wiki-like styling
+
+Note: note titles open on click and show hover previews on hover.
 
 ## Quick compile and test
 

@@ -18,7 +18,7 @@ export default class ReleaseTimeline extends Plugin {
 
 	private registerReleaseTimelineView() {
 		const registered = this.registerBasesView(RELEASE_TIMELINE_VIEW_TYPE, {
-			name: 'Release Timeline Base',
+			name: 'Release Timeline',
 			icon: 'lucide-calendar-range',
 			factory: (controller, containerEl) => new ReleaseTimelineBasesView(controller, containerEl, this),
 			options: () => [
@@ -66,6 +66,25 @@ export default class ReleaseTimeline extends Plugin {
 					},
 				},
 				{
+					type: 'dropdown',
+					key: 'colorAlternationBy',
+					displayName: 'Color alternation',
+					default: this.settings.colorAlternationBy,
+					options: {
+						year: 'By year',
+						month: 'By month',
+					},
+				},
+				{
+					type: 'slider',
+					key: 'widthPx',
+					displayName: 'Width (px)',
+					default: this.settings.defaultWidthPx,
+					min: 400,
+					max: 1600,
+					step: 25,
+				},
+				{
 					type: 'toggle',
 					key: 'bulletPoints',
 					displayName: 'Bullet points in stacked layout',
@@ -104,7 +123,7 @@ export default class ReleaseTimeline extends Plugin {
 		});
 
 		if (!registered) {
-			new Notice('Release Timeline Base requires Bases to be enabled in Obsidian 1.10 or newer.');
+			new Notice('Release Timeline requires Bases to be enabled in Obsidian 1.10 or newer.');
 		}
 	}
 
