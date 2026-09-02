@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-release-timeline",
+  "name": "release-timeline",
   "version": "2.0.0",
   "description": "Release timeline rendered as a custom Obsidian Bases view.",
   "main": "main.js",

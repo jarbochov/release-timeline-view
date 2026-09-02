@@ -64,8 +64,8 @@ function readPropertyId(config: BasesView['config'], key: string, fallback: stri
 
 function readRecordLabel(entry: BasesEntry, propertyId: string): string {
 	const value = entry.getValue(propertyId);
-	if (value && !value.isEmpty()) {
-		const text = value.toString().trim();
+	if (value !== null && value !== undefined) {
+		const text = String(value.toString()).trim();
 		if (text.length > 0) {
 			return text;
 		}
