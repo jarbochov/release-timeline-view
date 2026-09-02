@@ -2,8 +2,9 @@ import { DateTime } from 'luxon';
 
 export type TimelineMode = 'year' | 'month' | 'week';
 export type SortDirection = 'asc' | 'desc';
-export type WeekDisplayFormat = 'weekNames' | 'dateNames';
+export type WeekDisplayFormat = 'weekNames' | 'dateNames' | 'monthDayRange';
 export type ItemLayout = 'stacked' | 'inline';
+export type AccentAlternationMode = 'none' | 'year' | 'month' | 'both';
 
 export interface TimelineRecord {
 	filePath: string;
@@ -28,7 +29,7 @@ export interface TimelineBuildOptions {
 	sortDirection: SortDirection;
 	itemLayout: ItemLayout;
 	widthPx: number;
-	alternateAccentColors: boolean;
+	accentAlternationMode: AccentAlternationMode;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;
@@ -73,7 +74,20 @@ function weekLabel(date: DateTime, format: WeekDisplayFormat): string {
 		return `W${padWeek(date.weekNumber)}`;
 	}
 
-	return weekStart.toFormat('yyyy-MM-dd');
+	if (format === 'dateNames') {
+		return weekStart.toFormat('yyyy-MM-dd');
+	}
+
+	const startMonth = weekStart.toFormat('MMM');
+	const endMonth = weekEnd.toFormat('MMM');
+	const startDay = weekStart.toFormat('d');
+	const endDay = weekEnd.toFormat('d');
+
+	if (weekStart.year === weekEnd.year && weekStart.month === weekEnd.month) {
+		return `${startMonth} ${startDay}-${endDay}`;
+	}
+
+	return `${startMonth} ${startDay}-${endMonth} ${endDay}`;
 }
 
 function buildYearRows(records: TimelineRecord[], options: TimelineBuildOptions): TimelineRow[] {

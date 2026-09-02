@@ -1,6 +1,6 @@
 import { App, BasesEntry, BasesView, HoverParent, QueryController } from 'obsidian';
 import type ReleaseTimeline from './main';
-import { buildTimelineRows, parseTimelineDate, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
+import { buildTimelineRows, parseTimelineDate, AccentAlternationMode, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
 
 export const RELEASE_TIMELINE_VIEW_TYPE = 'release-timeline';
@@ -50,33 +50,41 @@ function normalizeSortDirection(value: string, fallback: SortDirection): SortDir
 }
 
 function normalizeWeekDisplayFormat(value: string, fallback: WeekDisplayFormat): WeekDisplayFormat {
-	return value === 'weekNames' || value === 'dateNames' ? value : fallback;
+	return value === 'weekNames' || value === 'dateNames' || value === 'monthDayRange' ? value : fallback;
 }
 
 function normalizeItemLayout(value: string, fallback: ItemLayout): ItemLayout {
 	return value === 'stacked' || value === 'inline' ? value : fallback;
 }
 
-function normalizeColorAlternation(value: string, fallback: 'year' | 'month'): 'year' | 'month' {
-	return value === 'year' || value === 'month' ? value : fallback;
+function normalizeAccentAlternationMode(value: string, fallback: AccentAlternationMode): AccentAlternationMode {
+	return value === 'none' || value === 'year' || value === 'month' || value === 'both' ? value : fallback;
 }
 
-function readToggle(value: unknown, fallback: boolean): boolean {
-	if (typeof value === 'boolean') {
-		return value;
+function normalizeLegacyColorAlternation(value: string): 'year' | 'month' {
+	return value === 'month' ? 'month' : 'year';
+}
+
+function readAccentAlternationMode(plugin: ReleaseTimeline, viewConfig: BasesView['config']): AccentAlternationMode {
+	const newValue = normalizeAccentAlternationMode(
+		readString(viewConfig.get('accentAlternationMode'), plugin.settings.accentAlternationMode),
+		plugin.settings.accentAlternationMode,
+	);
+
+	if (newValue !== plugin.settings.accentAlternationMode || viewConfig.get('accentAlternationMode') !== undefined) {
+		return newValue;
 	}
 
-	if (value !== null && value !== undefined) {
-		const text = String(value).trim().toLowerCase();
-		if (text === 'true') {
-			return true;
-		}
-		if (text === 'false') {
-			return false;
-		}
+	const legacyDirection = normalizeLegacyColorAlternation(
+		readString(viewConfig.get('colorAlternationBy'), 'year'),
+	);
+	const legacyEnabled = readBoolean(viewConfig.get('alternateAccentColors'), plugin.settings.accentAlternationMode !== 'none');
+
+	if (!legacyEnabled) {
+		return 'none';
 	}
 
-	return fallback;
+	return legacyDirection === 'year' ? 'year' : 'month';
 }
 
 function normalizeWidth(value: unknown, fallback: number): number {
@@ -212,7 +220,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const mode = normalizeMode(readString(viewConfig.get('mode'), plugin.settings.defaultTimelineMode), plugin.settings.defaultTimelineMode);
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
 	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
-	const alternateAccentColors = readToggle(viewConfig.get('alternateAccentColors'), plugin.settings.alternateAccentColors);
+	const accentAlternationMode = readAccentAlternationMode(plugin, viewConfig);
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
@@ -223,7 +231,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		mode,
 		sortDirection,
 		itemLayout,
-		alternateAccentColors,
+		accentAlternationMode,
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -262,8 +270,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		this.rootEl.appendChild(renderTimelineTable(rows, {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
 			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
-			colorAlternationBy: normalizeColorAlternation(readString(this.config.get('colorAlternationBy'), this.plugin.settings.colorAlternationBy), this.plugin.settings.colorAlternationBy),
-			alternateAccentColors: readToggle(this.config.get('alternateAccentColors'), this.plugin.settings.alternateAccentColors),
+			accentAlternationMode: readAccentAlternationMode(this.plugin, this.config),
 			widthPx: options.widthPx,
 			colors: this.plugin.settings,
 			app: this.plugin.app,

@@ -67,19 +67,15 @@ export default class ReleaseTimeline extends Plugin {
 				},
 				{
 					type: 'dropdown',
-					key: 'colorAlternationBy',
-					displayName: 'Color alternation',
-					default: this.settings.colorAlternationBy,
+					key: 'accentAlternationMode',
+					displayName: 'Accent alternation',
+					default: this.settings.accentAlternationMode,
 					options: {
-						year: 'By year',
-						month: 'By month',
+						none: 'None',
+						year: 'Year only',
+						month: 'Month/week only',
+						both: 'Year and month/week',
 					},
-				},
-				{
-					type: 'toggle',
-					key: 'alternateAccentColors',
-					displayName: 'Alternate accent colors',
-					default: this.settings.alternateAccentColors,
 				},
 				{
 					type: 'slider',
@@ -123,6 +119,7 @@ export default class ReleaseTimeline extends Plugin {
 					options: {
 						weekNames: 'Week names: W15',
 						dateNames: 'Date names: 2025-08-19',
+						monthDayRange: 'Date range: Feb 13-20',
 					},
 				},
 			],

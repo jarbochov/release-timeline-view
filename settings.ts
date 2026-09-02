@@ -1,13 +1,12 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ReleaseTimeline from './main';
-import { ItemLayout, SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';
+import { AccentAlternationMode, ItemLayout, SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';
 
 export interface ReleaseTimelineSettings {
 	defaultTimelineMode: TimelineMode;
 	defaultSortOrder: SortDirection;
 	defaultItemLayout: ItemLayout;
-	colorAlternationBy: 'year' | 'month';
-	alternateAccentColors: boolean;
+	accentAlternationMode: AccentAlternationMode;
 	defaultWidthPx: number;
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
@@ -22,8 +21,7 @@ export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	defaultTimelineMode: 'year',
 	defaultSortOrder: 'desc',
 	defaultItemLayout: 'stacked',
-	colorAlternationBy: 'year',
-	alternateAccentColors: true,
+	accentAlternationMode: 'both',
 	defaultWidthPx: 900,
 	collapseEmptyYears: false,
 	bulletPoints: true,
@@ -89,26 +87,17 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName('Color alternation')
-			.setDesc('Alternates the color band by year or by month.')
+			.setName('Accent alternation')
+			.setDesc('Controls whether the accent colors alternate by year, month/week, both, or not at all.')
 			.addDropdown((dropdown) => {
-				dropdown.addOption('year', 'By year');
-				dropdown.addOption('month', 'By month');
-				dropdown.setValue(this.plugin.settings.colorAlternationBy);
-				dropdown.onChange(async (value: 'year' | 'month') => {
-					this.plugin.settings.colorAlternationBy = value;
+				dropdown.addOption('none', 'None');
+				dropdown.addOption('year', 'Year only');
+				dropdown.addOption('month', 'Month/week only');
+				dropdown.addOption('both', 'Year and month/week');
+				dropdown.setValue(this.plugin.settings.accentAlternationMode);
+				dropdown.onChange(async (value: AccentAlternationMode) => {
+					this.plugin.settings.accentAlternationMode = value;
 					await this.plugin.saveSettings();
-				});
-
-		new Setting(containerEl)
-				.setName('Alternate accent colors')
-				.setDesc('Turns alternating accent shades on or off.')
-				.addToggle((toggle) => {
-					toggle.setValue(this.plugin.settings.alternateAccentColors);
-					toggle.onChange(async (value) => {
-						this.plugin.settings.alternateAccentColors = value;
-						await this.plugin.saveSettings();
-					});
 				});
 			});
 
@@ -179,6 +168,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			.addDropdown((dropdown) => {
 				dropdown.addOption('weekNames', 'Week names: W15');
 				dropdown.addOption('dateNames', 'Date names: 2025-08-19');
+				dropdown.addOption('monthDayRange', 'Date range: Feb 13-20');
 				dropdown.setValue(this.plugin.settings.weekDisplayFormat);
 				dropdown.onChange(async (value: WeekDisplayFormat) => {
 					this.plugin.settings.weekDisplayFormat = value;

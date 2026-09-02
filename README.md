@@ -42,10 +42,10 @@ View settings:
 - `collapseEmptyYears`: compress long runs of empty years in year mode
 - `collapseLimit`: minimum empty-year run length to collapse
 - `collapseEmptyMonths`: reduce empty months in week mode
-- `weekDisplayFormat`: `weekNames` (`W15`) or `dateNames` (`11-17`)
-- `colorAlternationBy`: alternate the color guide by year or by month
+- `weekDisplayFormat`: `weekNames` (`W15`), `dateNames` (`2025-08-19`), or `monthDayRange` (`Feb 13-20`)
+- `accentAlternationMode`: `none`, `year`, `month`, or `both`
 - `widthPx`: set the rendered view width in pixels
-- color pickers for year, month, and week accents so embeds can match the original wiki-like styling
+- color pickers for the primary and alternate accent colors so embeds can match the original wiki-like styling
 
 Note: note titles open on click and show hover previews on hover.
 

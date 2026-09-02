@@ -1,11 +1,11 @@
 import { App, HoverParent, TFile } from 'obsidian';
-import { TimelineRecord, TimelineRow } from './timeline-core';
+import { AccentAlternationMode, TimelineRecord, TimelineRow } from './timeline-core';
 import type { ReleaseTimelineSettings } from './settings';
 
 export interface TimelineRenderOptions {
 	bulletPoints: boolean;
 	itemLayout: 'stacked' | 'inline';
-	colorAlternationBy: 'year' | 'month';
+	accentAlternationMode: AccentAlternationMode;
 	widthPx: number;
 	colors: ReleaseTimelineSettings;
 	app: App;
@@ -122,12 +122,8 @@ function getPalette(colors: ReleaseTimelineSettings): [string, string] {
 	return [colors.accentPrimaryColor, colors.accentAlternateColor];
 }
 
-function getAccentColor(palette: [string, string], index: number, alternationEnabled: boolean, empty: boolean): string {
-	if (!alternationEnabled) {
-		return empty ? palette[1] : palette[0];
-	}
-
-	return index % 2 === 0 ? palette[0] : palette[1];
+function getAccentColor(palette: [string, string], index: number, alternationEnabled: boolean): string {
+	return alternationEnabled && index % 2 === 1 ? palette[1] : palette[0];
 }
 
 function rowCountForMonth(row: TimelineRow, itemLayout: 'stacked' | 'inline'): number {
@@ -171,7 +167,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	const table = document.createElement('table');
 	table.classList.add('release-timeline', 'release-timeline-bases');
 	table.dataset.itemLayout = options.itemLayout;
-	table.dataset.colorAlternation = options.colorAlternationBy;
+	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.style.width = `${options.widthPx}px`;
 	table.style.maxWidth = '100%';
 
@@ -187,18 +183,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 		yearGroup.forEach((row, rowIndex) => {
 			const monthRows = rowCountForMonth(row, options.itemLayout);
-			const yearAccentColor = getAccentColor(
-				yearPalette,
-				yearGroupIndex,
-				options.colors.alternateAccentColors && options.colorAlternationBy === 'year',
-				row.empty,
-			);
-			const monthAccentColor = getAccentColor(
-				monthPalette,
-				monthIndex,
-				options.colors.alternateAccentColors && options.colorAlternationBy === 'month',
-				row.empty,
-			);
+			const yearAccentColor = getAccentColor(yearPalette, yearGroupIndex, options.accentAlternationMode === 'year' || options.accentAlternationMode === 'both');
+			const monthAccentColor = getAccentColor(monthPalette, monthIndex, options.accentAlternationMode === 'month' || options.accentAlternationMode === 'both');
 			monthIndex += 1;
 
 			const monthLabel = row.kind === 'year' ? '' : (row.subLabel ?? row.monthLabel ?? row.label);
