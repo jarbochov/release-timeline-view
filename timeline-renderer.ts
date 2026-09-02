@@ -184,7 +184,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 		const palette = getPalette(options.colors, yearGroup[0].kind);
 		let yearCellDrawn = false;
 
-		yearGroup.forEach((row) => {
+		yearGroup.forEach((row, rowIndex) => {
 			const monthRows = rowCountForMonth(row, options.itemLayout);
 			const accentColor = getAccentColor(palette, options.colorAlternationBy === 'year' ? yearGroupIndex : monthIndex);
 			monthIndex += 1;
@@ -198,6 +198,12 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				if (row.empty) {
 					tr.classList.add('is-empty');
 				}
+				if (itemIndex === itemRows.length - 1) {
+					tr.classList.add('release-timeline-row--month-end');
+				}
+				if (itemIndex === itemRows.length - 1 && rowIndex === yearGroup.length - 1) {
+					tr.classList.add('release-timeline-row--year-end');
+				}
 
 				if (!yearCellDrawn) {
 					const yearCell = createCell('th', row.year, 'release-timeline-period release-timeline-period--year');
@@ -206,7 +212,6 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
 					yearCell.style.setProperty('--release-timeline-accent', accentColor);
-					yearCell.style.color = accentColor;
 					yearCell.style.paddingRight = '0.85rem';
 					tr.appendChild(yearCell);
 					yearCellDrawn = true;

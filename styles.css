@@ -5,7 +5,7 @@ table.release-timeline {
 	font-size: 80%;
 	line-height: 0.9;
 	border-collapse: separate !important;
-	border-spacing: 0 0.32rem !important;
+	border-spacing: 0 !important;
 	background-color: transparent;
 	border: 1px solid var(--background-modifier-border) !important;
 	border-radius: 6px;
@@ -29,6 +29,16 @@ table.release-timeline {
 
 .release-timeline tr {
 	display: table-row;
+}
+
+.release-timeline tr.release-timeline-row--month-end th,
+.release-timeline tr.release-timeline-row--month-end td {
+	padding-bottom: 1.15rem !important;
+}
+
+.release-timeline tr.release-timeline-row--year-end th,
+.release-timeline tr.release-timeline-row--year-end td {
+	padding-bottom: 1.6rem !important;
 }
 
 .release-timeline th,
