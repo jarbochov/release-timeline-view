@@ -10,6 +10,7 @@ export interface TimelineRenderOptions {
 	accentAlternationMode: AccentAlternationMode;
 	showYearBar: boolean;
 	widthPx: number;
+	instanceId: string;
 	colors: ReleaseTimelineSettings;
 	app: App;
 	hoverParent: HoverParent;
@@ -176,10 +177,10 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	}
 
 	const table = createDetachedHost().createEl('table', { cls: ['release-timeline', 'release-timeline-bases'] });
+	table.dataset.releaseTimelineInstance = options.instanceId;
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.dataset.showYearBar = String(options.showYearBar);
-	table.setCssStyles({ '--release-timeline-width': `${options.widthPx}px` });
 
 	const tbody = table.createEl('tbody');
 	const yearGroups = groupRowsByYear(rows);
@@ -197,6 +198,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 			const yearAccentColor = getAccentColor(yearPalette, yearGroupIndex, options.accentAlternationMode === 'year' || options.accentAlternationMode === 'both');
 			const monthAccentColor = getAccentColor(monthPalette, monthIndex, options.accentAlternationMode === 'month' || options.accentAlternationMode === 'both');
 			monthIndex += 1;
+			const yearAccentClass = yearAccentColor === options.colors.accentAlternateColor ? 'alternate' : 'primary';
+			const monthAccentClass = monthAccentColor === options.colors.accentAlternateColor ? 'alternate' : 'primary';
 
 			const monthLabel = row.kind === 'year' ? '' : (row.subLabel ?? row.monthLabel ?? row.label);
 			const itemRows = options.itemLayout === 'stacked' ? (row.items.length > 0 ? row.items : [null]) : [row.items[0] ?? null];
@@ -217,9 +220,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					tr.appendChild(yearCell);
 
 					if (options.showYearBar) {
-						const yearBarCell = tr.createEl('td', { cls: 'release-timeline-year-bar' });
+						const yearBarCell = tr.createEl('td', { cls: ['release-timeline-year-bar', `release-timeline-year-bar--${yearAccentClass}`] });
 						yearBarCell.rowSpan = yearRowSpan;
-						yearBarCell.setCssStyles({ '--release-timeline-year-bar': yearAccentColor });
 					}
 
 					yearCellDrawn = true;
@@ -235,14 +237,15 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					tr.appendChild(monthCell);
 				}
 
-				const accentCell = tr.createEl('td', { cls: 'release-timeline-accent-cell' });
-				accentCell.setCssStyles({ '--release-timeline-accent': monthAccentColor });
+				const accentCell = tr.createEl('td', { cls: ['release-timeline-accent-cell', `release-timeline-accent-cell--${monthAccentClass}`] });
+				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
 					? createSingleItemRow(itemRecord, options.bulletPoints, options.app, options.hoverParent)
 					: createItemCell(row.items, options.bulletPoints, options.itemLayout, options.inlineDelimiter, options.app, options.hoverParent);
 
 				tr.appendChild(itemCell);
+				tbody.appendChild(tr);
 			});
 
 			if (rowIndex < yearGroup.length - 1) {

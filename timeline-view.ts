@@ -521,9 +521,27 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 
 	public async onDataUpdated(): Promise<void> {
 		this.rootEl.empty();
-		this.rootEl.setCssStyles({ '--release-timeline-max-width': `${this.plugin.settings.defaultWidthPx}px` });
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
+		const instanceId = `release-timeline-${Date.now().toString(36)}`;
+		this.rootEl.dataset.releaseTimelineInstance = instanceId;
+		const style = document.createElement('style');
+		style.textContent = `
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] {
+	max-width: ${options.widthPx}px;
+}
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline {
+	width: ${options.widthPx}px;
+}
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-year-bar--primary,
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-accent-cell--primary {
+	background-color: ${this.plugin.settings.accentPrimaryColor};
+}
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-year-bar--alternate,
+.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-accent-cell--alternate {
+	background-color: ${this.plugin.settings.accentAlternateColor};
+}`;
+		this.rootEl.appendChild(style);
 		const viewName = readString(this.config.get('name'), '');
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
@@ -554,6 +572,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			accentAlternationMode: readAccentAlternationMode(this.plugin, this.config),
 			showYearBar: options.showYearBar,
 			widthPx: options.widthPx,
+			instanceId,
 			colors: this.plugin.settings,
 			app: this.plugin.app,
 			hoverParent: this,
