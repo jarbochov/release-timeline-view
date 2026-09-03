@@ -119,7 +119,7 @@ function humanizePropertyLabel(propertyId: string): string {
 
 function readPropertyDisplayName(viewConfig: BasesView['config'], propertyId: string): string {
 	try {
-	const displayName = viewConfig.getDisplayName(propertyId);
+		const displayName = viewConfig.getDisplayName(propertyId);
 		const text = String(displayName).trim();
 		if (text.length > 0) {
 			return text;
@@ -525,6 +525,10 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const instanceId = `release-timeline-${Date.now().toString(36)}`;
 		this.rootEl.dataset.releaseTimelineInstance = instanceId;
+		this.rootEl.style.setProperty('--release-timeline-width', `${options.widthPx}px`);
+		this.rootEl.style.setProperty('--release-timeline-max-width', `${options.widthPx}px`);
+		this.rootEl.style.width = `${options.widthPx}px`;
+		this.rootEl.style.maxWidth = `${options.widthPx}px`;
 		const style = document.createElement('style');
 		style.textContent = `
 .release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] {

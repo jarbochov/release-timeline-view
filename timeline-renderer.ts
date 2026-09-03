@@ -181,6 +181,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.dataset.showYearBar = String(options.showYearBar);
+	table.style.width = `${options.widthPx}px`;
+	table.style.maxWidth = `${options.widthPx}px`;
 
 	const tbody = table.createEl('tbody');
 	const yearGroups = groupRowsByYear(rows);
@@ -216,7 +218,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.rowSpan = yearRowSpan;
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
-					yearCell.setCssStyles({ paddingRight: '2px' });
+					yearCell.setCssStyles({ paddingRight: '6px' });
 					tr.appendChild(yearCell);
 
 					if (options.showYearBar) {
@@ -233,7 +235,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.rowSpan = monthRows;
 					monthCell.dataset.releaseKind = row.kind;
 					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
-					monthCell.setCssStyles({ paddingLeft: '2px', paddingRight: '4px' });
+					monthCell.setCssStyles({ paddingLeft: '6px', paddingRight: '8px' });
 					tr.appendChild(monthCell);
 				}
 
