@@ -52,6 +52,18 @@ View settings:
 
 Note: note titles open on click and show hover previews on hover.
 
+## Screenshots
+
+Captured from a small demo Base in Obsidian's default theme.
+
+### Month view
+
+![Release Timeline View month demo](assets/release-timeline-demo-month.png)
+
+### Year view
+
+![Release Timeline View year demo](assets/release-timeline-demo-year.png)
+
 ## Quick compile and test
 
 ```bash
