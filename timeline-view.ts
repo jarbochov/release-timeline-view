@@ -87,6 +87,51 @@ function readAccentAlternationMode(plugin: ReleaseTimeline, viewConfig: BasesVie
 	return legacyDirection === 'year' ? 'year' : 'month';
 }
 
+function normalizePropertyId(value: string): string | null {
+	const text = value.trim();
+	if (!text) {
+		return null;
+	}
+	return text.replace(/^(note|file|formula)\./, '');
+}
+
+function humanizePropertyLabel(propertyId: string): string {
+	const base = propertyId.split('.').pop() ?? propertyId;
+	return base
+		.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+		.replace(/[_-]+/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function readPropertyList(value: unknown, fallback: string): string[] {
+	const rawItems: unknown[] = Array.isArray(value)
+		? value
+		: typeof value === 'string'
+			? value.split(',')
+			: [];
+
+	const items = rawItems.length > 0 ? rawItems : fallback.split(',');
+	const propertyIds: string[] = [];
+
+	for (const item of items) {
+		let candidate = '';
+		if (typeof item === 'string') {
+			candidate = item;
+		} else if (item && typeof item === 'object') {
+			const record = item as Record<string, unknown>;
+			candidate = String(record.id ?? record.propertyId ?? record.key ?? record.value ?? '').trim();
+		}
+
+		const normalized = normalizePropertyId(candidate);
+		if (normalized) {
+			propertyIds.push(normalized);
+		}
+	}
+
+	return [...new Set(propertyIds)];
+}
+
 function normalizeWidth(value: unknown, fallback: number): number {
 	if (typeof value === 'number' && Number.isFinite(value)) {
 		return value;
@@ -189,7 +234,7 @@ function readRecordLabel(app: App, entry: BasesEntry, propertyId: string): strin
 	return entry.file.basename;
 }
 
-function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId: string, labelPropertyId: string): TimelineRecord[] {
+function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId: string, labelPropertyId: string, inlinePropertyIds: string[]): TimelineRecord[] {
 	const records: TimelineRecord[] = [];
 
 	for (const entry of entries) {
@@ -206,10 +251,20 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 			continue;
 		}
 
+		const inlineProperties = inlinePropertyIds
+			.filter((propertyId) => propertyId !== datePropertyId && propertyId !== labelPropertyId)
+			.map((propertyId) => {
+				const value = readEntryValue(app, entry, propertyId);
+				const text = value === null || value === undefined ? '' : String(value).trim();
+				return text ? { label: humanizePropertyLabel(propertyId), value: text } : null;
+			})
+			.filter((property): property is { label: string; value: string } => property !== null);
+
 		records.push({
 			filePath: entry.file.path,
 			displayName: readRecordLabel(app, entry, labelPropertyId),
 			date,
+			inlineProperties,
 		});
 	}
 
@@ -221,6 +276,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
 	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
 	const accentAlternationMode = readAccentAlternationMode(plugin, viewConfig);
+	const inlineProperties = readPropertyList(viewConfig.get('properties') ?? viewConfig.get('inlineProperties'), '');
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
@@ -232,6 +288,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		sortDirection,
 		itemLayout,
 		accentAlternationMode,
+		inlineProperties,
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -259,7 +316,8 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
-		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId);
+		const inlineProperties = readPropertyList(this.config.get('properties') ?? this.config.get('inlineProperties'), '');
+		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId, inlineProperties);
 
 		if (records.length === 0) {
 			this.rootEl.appendChild(createErrorTable('No notes in this base contain a usable timeline date.'));

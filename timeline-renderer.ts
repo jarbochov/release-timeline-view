@@ -61,6 +61,52 @@ function createTimelineLink(record: TimelineRecord, app: App, hoverParent: Hover
 	return link;
 }
 
+function appendInlineProperties(container: HTMLElement, record: TimelineRecord): void {
+	if (record.inlineProperties.length === 0) {
+		return;
+	}
+
+	const props = document.createElement('span');
+	props.classList.add('release-timeline-inline-properties');
+
+	record.inlineProperties.forEach((entry, index) => {
+		if (index > 0) {
+			props.appendChild(document.createTextNode(' · '));
+		}
+
+		const prop = document.createElement('span');
+		prop.classList.add('release-timeline-inline-property');
+
+		const label = document.createElement('span');
+		label.classList.add('release-timeline-inline-property-label');
+		label.textContent = `${entry.label}: `;
+		prop.appendChild(label);
+
+		const value = document.createElement('span');
+		value.classList.add('release-timeline-inline-property-value');
+		value.textContent = entry.value;
+		prop.appendChild(value);
+
+		props.appendChild(prop);
+	});
+
+	container.appendChild(props);
+}
+
+function createNoteContent(record: TimelineRecord, bulletPoints: boolean, app: App, hoverParent: HoverParent): HTMLSpanElement {
+	const wrapper = document.createElement('span');
+	wrapper.classList.add('release-timeline-note-content');
+	if (bulletPoints) {
+		const bullet = document.createElement('span');
+		bullet.classList.add('release-timeline-bullet');
+		bullet.textContent = '•';
+		wrapper.appendChild(bullet);
+	}
+	wrapper.appendChild(createTimelineLink(record, app, hoverParent));
+	appendInlineProperties(wrapper, record);
+	return wrapper;
+}
+
 function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
@@ -82,7 +128,7 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 
 		for (const record of records) {
 			const li = document.createElement('li');
-			li.appendChild(createTimelineLink(record, app, hoverParent));
+			li.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
 			list.appendChild(li);
 		}
 
@@ -95,13 +141,13 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 		if (index > 0) {
 			fragment.appendChild(document.createTextNode(', '));
 		}
-		fragment.appendChild(createTimelineLink(record, app, hoverParent));
+		fragment.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
 	});
 	cell.appendChild(fragment);
 	return cell;
 }
 
-function createSingleItemRow(record: TimelineRecord | null, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
+function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolean, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
@@ -114,7 +160,7 @@ function createSingleItemRow(record: TimelineRecord | null, accentColor: string,
 		return cell;
 	}
 
-	cell.appendChild(createTimelineLink(record, app, hoverParent));
+	cell.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
 	return cell;
 }
 
@@ -231,7 +277,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
-					? createSingleItemRow(itemRecord, monthAccentColor, options.app, options.hoverParent)
+					? createSingleItemRow(itemRecord, options.bulletPoints, monthAccentColor, options.app, options.hoverParent)
 					: createItemCell(row.items, options.bulletPoints, options.itemLayout, monthAccentColor, options.app, options.hoverParent);
 
 				tr.appendChild(itemCell);

@@ -10,6 +10,7 @@ export interface TimelineRecord {
 	filePath: string;
 	displayName: string;
 	date: DateTime;
+	inlineProperties: Array<{ label: string; value: string }>;
 }
 
 export interface TimelineRow {
@@ -30,6 +31,7 @@ export interface TimelineBuildOptions {
 	itemLayout: ItemLayout;
 	widthPx: number;
 	accentAlternationMode: AccentAlternationMode;
+	inlineProperties: string[];
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;

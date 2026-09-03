@@ -44,6 +44,7 @@ View settings:
 - `collapseEmptyMonths`: reduce empty months in week mode
 - `weekDisplayFormat`: `weekNames` (`W15`), `dateNames` (`2025-08-19`), or `monthDayRange` (`Feb 13-20`)
 - `accentAlternationMode`: `none`, `year`, `month`, or `both`
+- `properties`: use the Base's built-in properties selector to show selected fields inline after each note
 - `widthPx`: set the rendered view width in pixels
 - color pickers for the primary and alternate accent colors so embeds can match the original wiki-like styling
 
