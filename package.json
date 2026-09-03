@@ -1,5 +1,5 @@
 {
-  "name": "release-timeline-base",
+  "name": "release-timeline-view",
   "version": "0.1.0",
   "description": "Release timeline rendered as a custom Obsidian Bases view.",
   "main": "main.js",
@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jarbochov/obsidian-release-timeline.git"
+    "url": "git+https://github.com/jarbochov/release-timeline-view.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jarbochov/obsidian-release-timeline/issues"
+    "url": "https://github.com/jarbochov/release-timeline-view/issues"
   },
-  "homepage": "https://github.com/jarbochov/obsidian-release-timeline#readme",
+  "homepage": "https://github.com/jarbochov/release-timeline-view#readme",
   "devDependencies": {}
 }
