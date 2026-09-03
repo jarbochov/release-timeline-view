@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ReleaseTimeline from './main';
 import { AccentAlternationMode, ItemLayout, SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';

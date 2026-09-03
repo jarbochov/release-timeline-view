@@ -4,7 +4,6 @@
   "description": "Release timeline rendered as a custom Obsidian Bases view.",
   "main": "main.js",
   "dependencies": {
-    "builtin-modules": "^3.3.0",
     "esbuild": "^0.16.17",
     "esbuild-darwin-arm64": "^0.14.27",
     "luxon": "^2.3.0",

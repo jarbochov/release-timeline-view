@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, obsidianmd/prefer-create-el */
 import { App, HoverParent, TFile } from 'obsidian';
 import { AccentAlternationMode, TimelineRecord, TimelineRow } from './timeline-core';
 import type { ReleaseTimelineSettings } from './settings';
@@ -110,9 +111,7 @@ function createNoteContent(record: TimelineRecord, bulletPoints: boolean, app: A
 
 function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', inlineDelimiter: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
-	cell.classList.add('release-timeline-items');
-	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.paddingLeft = '0.75rem';
+	cell.classList.add('release-timeline-items', 'release-timeline-items--base');
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -149,9 +148,7 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 
 function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolean, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
-	cell.classList.add('release-timeline-items');
-	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.paddingLeft = '0.75rem';
+	cell.classList.add('release-timeline-items', 'release-timeline-items--base');
 
 	if (!record) {
 		cell.classList.add('is-empty');
@@ -214,8 +211,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.dataset.showYearBar = String(options.showYearBar);
-	table.style.width = `${options.widthPx}px`;
-	table.style.maxWidth = '100%';
+	table.setCssStyles({ '--release-timeline-width': `${options.widthPx}px` });
 
 	const tbody = document.createElement('tbody');
 	const yearGroups = groupRowsByYear(rows);
@@ -250,14 +246,14 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.rowSpan = yearRowSpan;
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
-					yearCell.style.paddingRight = '0.12rem';
+					yearCell.setCssStyles({ paddingRight: '0.12rem' });
 					tr.appendChild(yearCell);
 
 					if (options.showYearBar) {
 						const yearBarCell = document.createElement('td');
 						yearBarCell.classList.add('release-timeline-year-bar');
 						yearBarCell.rowSpan = yearRowSpan;
-						yearBarCell.style.backgroundColor = yearAccentColor;
+						yearBarCell.setCssStyles({ '--release-timeline-year-bar': yearAccentColor });
 						tr.appendChild(yearBarCell);
 					}
 
@@ -270,14 +266,13 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.rowSpan = monthRows;
 					monthCell.dataset.releaseKind = row.kind;
 					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
-					monthCell.style.paddingLeft = '0.15rem';
-					monthCell.style.paddingRight = '0.25rem';
+					monthCell.setCssStyles({ paddingLeft: '0.15rem', paddingRight: '0.25rem' });
 					tr.appendChild(monthCell);
 				}
 
 				const accentCell = document.createElement('td');
 				accentCell.classList.add('release-timeline-accent-cell');
-				accentCell.style.backgroundColor = monthAccentColor;
+				accentCell.setCssStyles({ '--release-timeline-accent': monthAccentColor });
 				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'

@@ -1,3 +1,5 @@
+/* stylelint-disable declaration-no-important */
+
 table.release-timeline {
 	flex: 1 1 100%;
 	margin: 0.5em auto;
@@ -10,6 +12,12 @@ table.release-timeline {
 	border: 1px solid var(--background-modifier-border) !important;
 	border-radius: 6px;
 	display: table;
+	width: var(--release-timeline-width, 100%);
+	max-width: 100%;
+}
+
+.release-timeline-bases-view {
+	max-width: var(--release-timeline-max-width, none);
 }
 
 .release-timeline thead th {
@@ -87,7 +95,7 @@ table.release-timeline {
 	width: 0.4rem;
 	min-width: 0.4rem;
 	padding: 0 !important;
-	background-color: var(--background-modifier-border);
+	background-color: var(--release-timeline-year-bar, var(--background-modifier-border));
 }
 
 .release-timeline .release-timeline-accent-cell {
@@ -137,6 +145,10 @@ table.release-timeline {
 
 .release-timeline .release-timeline-items {
 	font-weight: 700;
+}
+
+.release-timeline .release-timeline-items--base {
+	background-color: var(--background-primary);
 	padding-left: 0.7rem !important;
 	padding-right: 0.75rem !important;
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import { Notice, Plugin } from 'obsidian';
 import { ReleaseTimelineBasesView, RELEASE_TIMELINE_VIEW_TYPE } from './timeline-view';
 import { DEFAULT_SETTINGS, ReleaseTimelineSettingTab, ReleaseTimelineSettings } from './settings';

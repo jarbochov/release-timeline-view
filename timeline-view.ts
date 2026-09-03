@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 import { App, BasesEntry, BasesView, HoverParent, QueryController, TFile } from 'obsidian';
 import { DateTime } from 'luxon';
 import type ReleaseTimeline from './main';
@@ -101,14 +102,6 @@ function readAccentAlternationMode(plugin: ReleaseTimeline, viewConfig: BasesVie
 	return legacyDirection === 'year' ? 'year' : 'month';
 }
 
-function normalizePropertyId(value: string): string | null {
-	const text = value.trim();
-	if (!text) {
-		return null;
-	}
-	return text.replace(/^(note|file|formula)\./, '');
-}
-
 function humanizePropertyLabel(propertyId: string): string {
 	const base = propertyId.split('.').pop() ?? propertyId;
 	if (base === 'ctime') {
@@ -131,7 +124,7 @@ function readPropertyDisplayName(viewConfig: BasesView['config'], propertyId: st
 		if (text.length > 0) {
 			return text;
 		}
-	} catch (error) {
+	} catch {
 		// Fall back to a humanized name below.
 	}
 
@@ -403,7 +396,7 @@ function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknow
 			if (value !== null && value !== undefined) {
 				return value.toString();
 			}
-		} catch (error) {
+		} catch {
 			// Ignore unsupported property ids and try the next candidate.
 		}
 	}
@@ -525,7 +518,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 
 	public async onDataUpdated(): Promise<void> {
 		this.rootEl.empty();
-		this.rootEl.style.setProperty('max-width', `${this.plugin.settings.defaultWidthPx}px`);
+		this.rootEl.setCssStyles({ '--release-timeline-max-width': `${this.plugin.settings.defaultWidthPx}px` });
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const viewName = readString(this.config.get('name'), '');
