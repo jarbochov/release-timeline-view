@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, obsidianmd/prefer-create-el */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Obsidian's DOM and workspace helpers are loosely typed at runtime. */
 import { App, HoverParent, TFile } from 'obsidian';
 import { AccentAlternationMode, TimelineRecord, TimelineRow } from './timeline-core';
 import type { ReleaseTimelineSettings } from './settings';
@@ -15,41 +15,39 @@ export interface TimelineRenderOptions {
 	hoverParent: HoverParent;
 }
 
+function createDetachedHost(): HTMLElement {
+	const host = document.body.createDiv();
+	host.detach();
+	return host;
+}
+
 function createCell(tag: 'th' | 'td', text: string, className: string): HTMLTableCellElement {
-	const cell = document.createElement(tag);
-	cell.className = className;
-	cell.textContent = text;
-	return cell;
+	return createDetachedHost().createEl(tag, { cls: className, text });
 }
 
 export function createErrorTable(message: string, columnCount = 5): HTMLTableElement {
-	const table = document.createElement('table');
-	table.classList.add('release-timeline', 'release-timeline-error');
-
-	const tbody = document.createElement('tbody');
-	const row = document.createElement('tr');
-	const cell = document.createElement('td');
-	cell.setAttribute('colspan', String(columnCount));
-	cell.textContent = message;
-	row.appendChild(cell);
-	tbody.appendChild(row);
-	table.appendChild(tbody);
-
+	const table = createDetachedHost().createEl('table', { cls: ['release-timeline', 'release-timeline-error'] });
+	const tbody = table.createEl('tbody');
+	const row = tbody.createEl('tr');
+	row.createEl('td', { attr: { colspan: String(columnCount) }, text: message });
 	return table;
 }
 
-function createTimelineLink(record: TimelineRecord, app: App, hoverParent: HoverParent): HTMLAnchorElement {
-	const link = document.createElement('a');
-	link.classList.add('internal-link');
+function createTimelineLink(parent: HTMLElement, record: TimelineRecord, app: App, hoverParent: HoverParent): HTMLAnchorElement {
+	const link = parent.createEl('a', {
+		cls: 'internal-link',
+		text: record.displayName,
+		attr: { href: '#' },
+	});
 	link.dataset.href = record.filePath;
-	link.textContent = record.displayName;
-	link.href = '#';
-	link.addEventListener('click', async (event) => {
+	link.addEventListener('click', (event) => {
 		event.preventDefault();
-		const file = app.vault.getAbstractFileByPath(record.filePath);
-		if (file instanceof TFile) {
-			await app.workspace.getLeaf(true).openFile(file);
-		}
+		void (async () => {
+			const file = app.vault.getAbstractFileByPath(record.filePath);
+			if (file instanceof TFile) {
+				await app.workspace.getLeaf(true).openFile(file);
+			}
+		})();
 	});
 	link.addEventListener('mouseover', (event) => {
 		app.workspace.trigger('hover-link', {
@@ -69,49 +67,28 @@ function appendInlineProperties(container: HTMLElement, record: TimelineRecord):
 		return;
 	}
 
-	const props = document.createElement('div');
-	props.classList.add('release-timeline-inline-properties');
+	const props = container.createDiv({ cls: 'release-timeline-inline-properties' });
 
 	record.inlineProperties.forEach((entry) => {
-		const prop = document.createElement('div');
-		prop.classList.add('release-timeline-inline-property');
-
-		const label = document.createElement('div');
-		label.classList.add('release-timeline-inline-property-label');
-		label.textContent = entry.label;
-		prop.appendChild(label);
-
-		const value = document.createElement('div');
-		value.classList.add('release-timeline-inline-property-value');
-		value.textContent = entry.value;
-		prop.appendChild(value);
-
-		props.appendChild(prop);
+		const prop = props.createDiv({ cls: 'release-timeline-inline-property' });
+		prop.createDiv({ cls: 'release-timeline-inline-property-label', text: entry.label });
+		prop.createDiv({ cls: 'release-timeline-inline-property-value', text: entry.value });
 	});
-
-	container.appendChild(props);
 }
 
 function createNoteContent(record: TimelineRecord, bulletPoints: boolean, app: App, hoverParent: HoverParent): HTMLSpanElement {
-	const wrapper = document.createElement('span');
-	wrapper.classList.add('release-timeline-note-content');
-	const titleRow = document.createElement('span');
-	titleRow.classList.add('release-timeline-note-title-row');
+	const wrapper = createDetachedHost().createSpan({ cls: 'release-timeline-note-content' });
+	const titleRow = wrapper.createSpan({ cls: 'release-timeline-note-title-row' });
 	if (bulletPoints) {
-		const bullet = document.createElement('span');
-		bullet.classList.add('release-timeline-bullet');
-		bullet.textContent = '•';
-		titleRow.appendChild(bullet);
+		titleRow.createSpan({ cls: 'release-timeline-bullet', text: '•' });
 	}
-	titleRow.appendChild(createTimelineLink(record, app, hoverParent));
-	wrapper.appendChild(titleRow);
+	createTimelineLink(titleRow, record, app, hoverParent);
 	appendInlineProperties(wrapper, record);
 	return wrapper;
 }
 
 function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', inlineDelimiter: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
-	const cell = document.createElement('td');
-	cell.classList.add('release-timeline-items', 'release-timeline-items--base');
+	const cell = createDetachedHost().createEl('td', { cls: ['release-timeline-items', 'release-timeline-items--base'] });
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -120,18 +97,13 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	}
 
 	if (itemLayout === 'stacked') {
-		const list = document.createElement('ul');
-		list.classList.add('release-timeline-list');
-		list.classList.toggle('has-bullets', bulletPoints);
-		list.classList.toggle('no-bullets', !bulletPoints);
+		const list = cell.createEl('ul', { cls: ['release-timeline-list', bulletPoints ? 'has-bullets' : 'no-bullets'] });
 
 		for (const record of records) {
-			const li = document.createElement('li');
+			const li = list.createEl('li');
 			li.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
-			list.appendChild(li);
 		}
 
-		cell.appendChild(list);
 		return cell;
 	}
 
@@ -146,9 +118,8 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	return cell;
 }
 
-function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolean, accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
-	const cell = document.createElement('td');
-	cell.classList.add('release-timeline-items', 'release-timeline-items--base');
+function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolean, app: App, hoverParent: HoverParent): HTMLTableCellElement {
+	const cell = createDetachedHost().createEl('td', { cls: ['release-timeline-items', 'release-timeline-items--base'] });
 
 	if (!record) {
 		cell.classList.add('is-empty');
@@ -206,14 +177,13 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 		return createErrorTable('No matching notes were found for this timeline.', options.showYearBar ? 5 : 4);
 	}
 
-	const table = document.createElement('table');
-	table.classList.add('release-timeline', 'release-timeline-bases');
+	const table = createDetachedHost().createEl('table', { cls: ['release-timeline', 'release-timeline-bases'] });
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.dataset.showYearBar = String(options.showYearBar);
 	table.setCssStyles({ '--release-timeline-width': `${options.widthPx}px` });
 
-	const tbody = document.createElement('tbody');
+	const tbody = table.createEl('tbody');
 	const yearGroups = groupRowsByYear(rows);
 	let monthIndex = 0;
 	const columnCount = options.showYearBar ? 5 : 4;
@@ -234,8 +204,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 			const itemRows = options.itemLayout === 'stacked' ? (row.items.length > 0 ? row.items : [null]) : [row.items[0] ?? null];
 
 			itemRows.forEach((itemRecord, itemIndex) => {
-				const tr = document.createElement('tr');
-				tr.classList.add('release-timeline-row', `release-timeline-row--${row.kind}`);
+				const tr = tbody.createEl('tr', { cls: ['release-timeline-row', `release-timeline-row--${row.kind}`] });
 				if (row.empty) {
 					tr.classList.add('is-empty');
 				}
@@ -250,11 +219,9 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					tr.appendChild(yearCell);
 
 					if (options.showYearBar) {
-						const yearBarCell = document.createElement('td');
-						yearBarCell.classList.add('release-timeline-year-bar');
+						const yearBarCell = tr.createEl('td', { cls: 'release-timeline-year-bar' });
 						yearBarCell.rowSpan = yearRowSpan;
 						yearBarCell.setCssStyles({ '--release-timeline-year-bar': yearAccentColor });
-						tr.appendChild(yearBarCell);
 					}
 
 					yearCellDrawn = true;
@@ -270,41 +237,28 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					tr.appendChild(monthCell);
 				}
 
-				const accentCell = document.createElement('td');
-				accentCell.classList.add('release-timeline-accent-cell');
+				const accentCell = tr.createEl('td', { cls: 'release-timeline-accent-cell' });
 				accentCell.setCssStyles({ '--release-timeline-accent': monthAccentColor });
-				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
-					? createSingleItemRow(itemRecord, options.bulletPoints, monthAccentColor, options.app, options.hoverParent)
+					? createSingleItemRow(itemRecord, options.bulletPoints, options.app, options.hoverParent)
 					: createItemCell(row.items, options.bulletPoints, options.itemLayout, options.inlineDelimiter, options.app, options.hoverParent);
 
 				tr.appendChild(itemCell);
-				tbody.appendChild(tr);
 			});
 
 			if (rowIndex < yearGroup.length - 1) {
-				const gapRow = document.createElement('tr');
-				gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--month-gap');
-				const gapCell = document.createElement('td');
-				gapCell.classList.add('release-timeline-gap');
-				gapCell.setAttribute('colspan', String(columnCount));
-				gapRow.appendChild(gapCell);
-				tbody.appendChild(gapRow);
+				const gapRow = tbody.createEl('tr', { cls: ['release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--month-gap'] });
+				gapRow.createEl('td', { cls: 'release-timeline-gap', attr: { colspan: String(columnCount) } });
 			}
 		});
 
 		if (yearGroupIndex < yearGroups.length - 1) {
-			const gapRow = document.createElement('tr');
-			gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--year-gap');
-			const gapCell = document.createElement('td');
-			gapCell.classList.add('release-timeline-gap');
-			gapCell.setAttribute('colspan', String(columnCount));
-			gapRow.appendChild(gapCell);
-			tbody.appendChild(gapRow);
+			const gapRow = tbody.createEl('tr', { cls: ['release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--year-gap'] });
+			gapRow.createEl('td', { cls: 'release-timeline-gap', attr: { colspan: String(columnCount) } });
 		}
 	});
 
-	table.appendChild(tbody);
 	return table;
 }
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */

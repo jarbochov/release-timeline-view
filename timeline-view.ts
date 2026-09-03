@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Obsidian Bases exposes dynamic runtime values that cannot be fully typed. */
 import { App, BasesEntry, BasesView, HoverParent, QueryController, TFile } from 'obsidian';
 import { DateTime } from 'luxon';
 import type ReleaseTimeline from './main';
@@ -119,7 +119,7 @@ function humanizePropertyLabel(propertyId: string): string {
 
 function readPropertyDisplayName(viewConfig: BasesView['config'], propertyId: string): string {
 	try {
-		const displayName = viewConfig.getDisplayName(propertyId as Parameters<BasesView['config']['getDisplayName']>[0]);
+	const displayName = viewConfig.getDisplayName(propertyId);
 		const text = String(displayName).trim();
 		if (text.length > 0) {
 			return text;
@@ -209,7 +209,7 @@ function readInlinePropertyIdsFromBaseText(text: string): string[] {
 		const inlineValue = match[2].trim();
 
 		if (inlineValue) {
-			const cleaned = inlineValue.replace(/^[\[\(]\s*|\s*[\]\)]$/g, '');
+			const cleaned = inlineValue.replace(/^[\[(]\s*|\s*[\])]$/g, '');
 			const pieces = cleaned.includes(',') ? cleaned.split(',') : [cleaned];
 			for (const piece of pieces) {
 				const candidate = piece.trim().replace(/^['"]|['"]$/g, '');
@@ -392,7 +392,7 @@ function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknow
 		}
 
 		try {
-			const value = entry.getValue(candidate as Parameters<BasesEntry['getValue']>[0]);
+			const value = entry.getValue(candidate);
 			if (value !== null && value !== undefined) {
 				return value.toString();
 			}
@@ -400,6 +400,7 @@ function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknow
 			// Ignore unsupported property ids and try the next candidate.
 		}
 	}
+	/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
 
 	return null;
 }

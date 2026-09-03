@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Luxon and Obsidian data inputs are runtime-validated here. */
 import { DateTime } from 'luxon';
 
 export type TimelineMode = 'year' | 'month' | 'week';
@@ -364,3 +364,4 @@ export function parseTimelineDate(input: unknown): DateTime | null {
 	const parsedDate = DateTime.fromJSDate(new Date(text));
 	return parsedDate.isValid ? parsedDate : null;
 }
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */

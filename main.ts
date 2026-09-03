@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Obsidian's Bases APIs are loosely typed at runtime. */
 import { Notice, Plugin } from 'obsidian';
 import { ReleaseTimelineBasesView, RELEASE_TIMELINE_VIEW_TYPE } from './timeline-view';
 import { DEFAULT_SETTINGS, ReleaseTimelineSettingTab, ReleaseTimelineSettings } from './settings';
@@ -169,3 +169,4 @@ export default class ReleaseTimeline extends Plugin {
 		await this.saveData(this.settings);
 	}
 }
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */

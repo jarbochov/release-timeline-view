@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Obsidian's settings UI helpers are loosely typed. */
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ReleaseTimeline from './main';
 import { AccentAlternationMode, ItemLayout, SortDirection, TimelineMode, WeekDisplayFormat } from './timeline-core';
@@ -47,7 +47,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName('Default view settings').setHeading();
+		new Setting(containerEl).setName('Default view options').setHeading();
 
 		new Setting(containerEl)
 			.setName('Default timeline mode')
@@ -216,3 +216,4 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			});
 	}
 }
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
