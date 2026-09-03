@@ -35,6 +35,7 @@ export interface TimelineBuildOptions {
 	showYearBar: boolean;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
+	collapseEmptyWeeks: boolean;
 	collapseEmptyMonths: boolean;
 	weekDisplayFormat: WeekDisplayFormat;
 }
@@ -251,12 +252,17 @@ function buildWeekRows(records: TimelineRecord[], options: TimelineBuildOptions)
 		});
 	}
 
-	if (!options.collapseEmptyMonths) {
+	if (!options.collapseEmptyWeeks && !options.collapseEmptyMonths) {
 		return reverseIfNeeded(rows, options.sortDirection);
 	}
 
+	const visibleWeeks = options.collapseEmptyWeeks ? rows.filter((row) => !row.empty || row.kind !== 'week') : rows;
+	if (!options.collapseEmptyMonths) {
+		return reverseIfNeeded(visibleWeeks, options.sortDirection);
+	}
+
 	const collapsedMonths: TimelineRow[] = [];
-	let currentMonth = rows[0].month;
+	let currentMonth = visibleWeeks[0]?.month;
 	let monthGroup: TimelineRow[] = [];
 
 	const flushMonthGroup = () => {
@@ -282,7 +288,7 @@ function buildWeekRows(records: TimelineRecord[], options: TimelineBuildOptions)
 		monthGroup = [];
 	};
 
-	for (const row of rows) {
+	for (const row of visibleWeeks) {
 		if (row.month !== currentMonth) {
 			flushMonthGroup();
 			currentMonth = row.month;

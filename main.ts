@@ -110,23 +110,35 @@ export default class ReleaseTimeline extends Plugin {
 						default: this.settings.bulletPoints,
 					},
 					{
-						type: 'toggle',
-						key: 'collapseEmptyYears',
-						displayName: 'Collapse empty years',
-						default: this.settings.collapseEmptyYears,
-					},
-					{
-						type: 'text',
-						key: 'collapseLimit',
-						displayName: 'Collapse limit',
-						placeholder: '2',
-						default: this.settings.collapseLimit,
-					},
-					{
-						type: 'toggle',
-						key: 'collapseEmptyMonths',
-						displayName: 'Collapse empty months',
-						default: this.settings.collapseEmptyMonthsWeeklyTimeline,
+						type: 'group',
+						displayName: 'Collapse settings',
+						items: [
+							{
+								type: 'toggle',
+								key: 'collapseEmptyYears',
+								displayName: 'Collapse empty years',
+								default: this.settings.collapseEmptyYears,
+							},
+							{
+								type: 'text',
+								key: 'collapseLimit',
+								displayName: 'Year collapse limit',
+								placeholder: '2',
+								default: this.settings.collapseLimit,
+							},
+							{
+								type: 'toggle',
+								key: 'collapseEmptyWeeks',
+								displayName: 'Collapse empty weeks',
+								default: this.settings.collapseEmptyWeeksWeeklyTimeline,
+							},
+							{
+								type: 'toggle',
+								key: 'collapseEmptyMonths',
+								displayName: 'Collapse empty months',
+								default: this.settings.collapseEmptyMonthsWeeklyTimeline,
+							},
+						],
 					},
 					{
 						type: 'dropdown',

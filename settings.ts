@@ -11,6 +11,7 @@ export interface ReleaseTimelineSettings {
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
 	collapseLimit: string;
+	collapseEmptyWeeksWeeklyTimeline: boolean;
 	collapseEmptyMonthsWeeklyTimeline: boolean;
 	weekDisplayFormat: WeekDisplayFormat;
 	accentPrimaryColor: string;
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	collapseEmptyYears: false,
 	bulletPoints: true,
 	collapseLimit: '2',
+	collapseEmptyWeeksWeeklyTimeline: true,
 	collapseEmptyMonthsWeeklyTimeline: true,
 	weekDisplayFormat: 'dateNames',
 	accentPrimaryColor: '#0BDA51',
@@ -140,6 +142,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Minimum number of empty years to collapse')
+			.setDesc('The minimum consecutive empty year count required before collapse happens.')
 			.addText((text) =>
 				text
 					.setPlaceholder('2')
@@ -151,6 +154,17 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			);
 
 		containerEl.createEl('h3', { text: 'Week defaults' });
+
+		new Setting(containerEl)
+			.setName('Collapse empty weeks')
+			.setDesc('Weeks without entries are reduced to a single row in week mode.')
+			.addToggle((toggle) => {
+				toggle.setValue(this.plugin.settings.collapseEmptyWeeksWeeklyTimeline);
+				toggle.onChange(async (value) => {
+					this.plugin.settings.collapseEmptyWeeksWeeklyTimeline = value;
+					await this.plugin.saveSettings();
+				});
+			});
 
 		new Setting(containerEl)
 			.setName('Collapse empty months')

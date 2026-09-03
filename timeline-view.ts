@@ -121,15 +121,28 @@ function humanizePropertyLabel(propertyId: string): string {
 		.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
 		.replace(/[_-]+/g, ' ')
 		.replace(/\s+/g, ' ')
-		.trim()
-		.toLowerCase();
+		.trim();
+}
+
+function readPropertyDisplayName(viewConfig: BasesView['config'], propertyId: string): string {
+	try {
+		const displayName = viewConfig.getDisplayName(propertyId as Parameters<BasesView['config']['getDisplayName']>[0]);
+		const text = String(displayName).trim();
+		if (text.length > 0) {
+			return text;
+		}
+	} catch (error) {
+		// Fall back to a humanized name below.
+	}
+
+	return humanizePropertyLabel(propertyId);
 }
 
 function formatInlinePropertyValue(propertyId: string, value: unknown): string {
 	if (propertyId === 'file.ctime' || propertyId === 'file.mtime') {
 		const millis = typeof value === 'number' ? value : Number(value);
 		if (Number.isFinite(millis)) {
-			return DateTime.fromMillis(millis).toFormat('yyyy-LL-dd, hh:mm:ss a');
+			return DateTime.fromMillis(millis).toFormat('yyyy - LL - dd, hh:mm:ss a');
 		}
 	}
 
@@ -410,7 +423,7 @@ function readRecordLabel(app: App, entry: BasesEntry, propertyId: string): strin
 	return entry.file.basename;
 }
 
-function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId: string, labelPropertyId: string, inlinePropertyIds: string[]): TimelineRecord[] {
+function extractTimelineRecords(app: App, viewConfig: BasesView['config'], entries: BasesEntry[], datePropertyId: string, labelPropertyId: string, inlinePropertyIds: string[]): TimelineRecord[] {
 	const records: TimelineRecord[] = [];
 
 	for (const entry of entries) {
@@ -433,7 +446,7 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 				const value = readEntryValue(app, entry, propertyId);
 				const text = value === null || value === undefined ? '' : formatInlinePropertyValue(propertyId, value);
 				return text && text !== 'null' && text !== 'undefined' && text !== '[object Object]'
-					? { label: humanizePropertyLabel(propertyId), value: text }
+					? { label: readPropertyDisplayName(viewConfig, propertyId), value: text }
 					: null;
 			})
 			.filter((property): property is { label: string; value: string } => property !== null);
@@ -449,6 +462,26 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 	return records;
 }
 
+function readInlinePropertyIds(view: ReleaseTimelineBasesView): string[] {
+	const ordered = view.config.getOrder();
+	if (ordered.length > 0) {
+		return ordered.map((propertyId) => String(propertyId));
+	}
+
+	const queryProperties = view.data.properties ?? [];
+	if (queryProperties.length > 0) {
+		return queryProperties.map((propertyId) => String(propertyId));
+	}
+
+	const releaseTimelineView = (view.query as { views?: Array<{ type?: string; order?: unknown; properties?: unknown }> } | undefined)?.views?.find((entry) => entry?.type === RELEASE_TIMELINE_VIEW_TYPE);
+	const fromConfig = readQueryProperties(releaseTimelineView?.order ?? releaseTimelineView?.properties ?? view.config.get('order') ?? view.config.get('properties'));
+	if (fromConfig.length > 0) {
+		return fromConfig;
+	}
+
+	return [];
+}
+
 function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['config']): TimelineBuildOptions {
 	const mode = normalizeMode(readString(viewConfig.get('mode'), plugin.settings.defaultTimelineMode), plugin.settings.defaultTimelineMode);
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
@@ -457,6 +490,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const accentAlternationMode = readAccentAlternationMode(plugin, viewConfig);
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
+	const collapseEmptyWeeks = readBoolean(viewConfig.get('collapseEmptyWeeks'), plugin.settings.collapseEmptyWeeksWeeklyTimeline);
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
 	const weekDisplayFormat = normalizeWeekDisplayFormat(readString(viewConfig.get('weekDisplayFormat'), plugin.settings.weekDisplayFormat), plugin.settings.weekDisplayFormat);
 	const widthPx = Math.max(400, normalizeWidth(viewConfig.get('widthPx'), plugin.settings.defaultWidthPx));
@@ -470,6 +504,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		showYearBar: readBoolean(viewConfig.get('showYearBar'), true),
 		collapseEmptyYears,
 		collapseLimit,
+		collapseEmptyWeeks,
 		collapseEmptyMonths,
 		weekDisplayFormat,
 		widthPx,
@@ -496,8 +531,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		const viewName = readString(this.config.get('name'), '');
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
-		const releaseTimelineView = (this.query as { views?: Array<{ type?: string; order?: unknown; properties?: unknown }> } | undefined)?.views?.find((view) => view?.type === RELEASE_TIMELINE_VIEW_TYPE);
-		let inlineProperties = readQueryProperties(releaseTimelineView?.order ?? releaseTimelineView?.properties ?? this.config.get('order') ?? this.config.get('properties') ?? this.query?.properties);
+		let inlineProperties = readInlinePropertyIds(this);
 
 		if (inlineProperties.length === 0) {
 			const activeFile = this.plugin.app.workspace.getActiveFile();
@@ -509,7 +543,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			}
 		}
 
-		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId, inlineProperties);
+		const records = extractTimelineRecords(this.plugin.app, this.config, this.data.data, datePropertyId, labelPropertyId, inlineProperties);
 
 		if (records.length === 0) {
 			this.rootEl.appendChild(createErrorTable('No notes in this base contain a usable timeline date.'));

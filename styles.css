@@ -183,7 +183,7 @@ table.release-timeline {
 }
 
 .release-timeline .release-timeline-note-content {
-	display: flex;
+	display: inline-flex;
 	flex-direction: column;
 	gap: 0.18rem;
 }
@@ -204,6 +204,8 @@ table.release-timeline {
 	flex-direction: column;
 	gap: 0.12rem;
 	margin-top: 0.18rem;
+	padding-left: 0.55rem;
+	border-left: 2px solid var(--background-modifier-border);
 	color: var(--text-muted);
 	font-weight: 500;
 	font-size: 0.9em;
@@ -211,7 +213,6 @@ table.release-timeline {
 
 .release-timeline .release-timeline-inline-property-label {
 	font-size: 0.88em;
-	text-transform: lowercase;
 	letter-spacing: 0.01em;
 }
 
