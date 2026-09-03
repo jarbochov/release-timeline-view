@@ -4,6 +4,7 @@ import { AccentAlternationMode, TimelineRecord, TimelineRow } from './timeline-c
 import type { ReleaseTimelineSettings } from './settings';
 
 export interface TimelineRenderOptions {
+	mode: 'year' | 'month' | 'week';
 	bulletPoints: boolean;
 	itemLayout: 'stacked' | 'inline';
 	inlineDelimiter: string;
@@ -178,6 +179,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 	const table = createDetachedHost().createEl('table', { cls: ['release-timeline', 'release-timeline-bases'] });
 	table.dataset.releaseTimelineInstance = options.instanceId;
+	table.dataset.mode = options.mode;
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
 	table.dataset.showYearBar = String(options.showYearBar);

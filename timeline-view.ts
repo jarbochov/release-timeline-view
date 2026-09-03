@@ -575,6 +575,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			inlineDelimiter: options.inlineDelimiter,
 			accentAlternationMode: readAccentAlternationMode(this.plugin, this.config),
 			showYearBar: options.showYearBar,
+			mode: options.mode,
 			widthPx: options.widthPx,
 			instanceId,
 			colors: this.plugin.settings,

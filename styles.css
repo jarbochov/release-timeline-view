@@ -90,6 +90,14 @@ table.release-timeline {
 	width: 2.8rem;
 }
 
+.release-timeline tr.release-timeline-row--week .release-timeline-period--year {
+	width: 3rem;
+}
+
+.release-timeline tr.release-timeline-row--week .release-timeline-period--secondary {
+	width: 6.75rem;
+}
+
 .release-timeline .release-timeline-year-bar {
 	width: 0.4rem;
 	min-width: 0.4rem;
