@@ -138,6 +138,22 @@ function readQueryProperties(value: unknown): string[] {
 	return [...new Set(propertyIds)];
 }
 
+function readInlinePropertyIdsFromBaseText(text: string): string[] {
+	const timelineViewMatch = text.match(/^\s*-\s*type:\s*release-timeline\b[\s\S]*?(?=^\s*-\s*type:|$)/m);
+	if (!timelineViewMatch) {
+		return [];
+	}
+
+	const section = timelineViewMatch[0];
+	const propertySectionMatch = section.match(/^\s*(?:order|properties):\s*([\s\S]*?)(?=^\s*\w+:\s*|$)/m);
+	if (!propertySectionMatch) {
+		return [];
+	}
+
+	const matches = propertySectionMatch[1].match(/^\s*-\s*(.+)$/gm) ?? [];
+	return readQueryProperties(matches.map((line) => line.replace(/^\s*-\s*/, '')));
+}
+
 function normalizeWidth(value: unknown, fallback: number): number {
 	if (typeof value === 'number' && Number.isFinite(value)) {
 		return value;
@@ -187,37 +203,7 @@ function getPropertyCandidates(propertyId: string): string[] {
 
 function readFrontmatterValue(app: App, entry: BasesEntry, propertyId: string): unknown {
 	const [prefix, ...rest] = propertyId.split('.');
-	const rawProperty = rest.join('.');
-
-	if (prefix === 'file') {
-		if (candidate === 'file.name' || candidate === 'file.basename' || candidate === 'file.fullname') {
-			return entry.file.basename;
-		}
-
-		if (candidate === 'file.path') {
-			return entry.file.path;
-		}
-
-		if (candidate === 'file.folder') {
-			return entry.file.parent?.path ?? '';
-		}
-
-		if (candidate === 'file.ext') {
-			return entry.file.extension;
-		}
-
-		if (candidate === 'file.size') {
-			return entry.file.stat.size;
-		}
-
-		if (candidate === 'file.ctime') {
-			return new Date(entry.file.stat.ctime).toISOString().slice(0, 10);
-		}
-
-		if (candidate === 'file.mtime') {
-			return new Date(entry.file.stat.mtime).toISOString().slice(0, 10);
-		}
-	}
+	const rawProperty = prefix === 'note' ? rest.join('.') : propertyId;
 
 	const cache = app.metadataCache.getFileCache(entry.file);
 	if (cache?.frontmatter && Object.prototype.hasOwnProperty.call(cache.frontmatter, rawProperty)) {
@@ -225,6 +211,29 @@ function readFrontmatterValue(app: App, entry: BasesEntry, propertyId: string): 
 	}
 
 	return null;
+}
+
+function readFileValue(entry: BasesEntry, propertyId: string): unknown {
+	switch (propertyId) {
+		case 'file.name':
+		case 'file.basename':
+		case 'file.fullname':
+			return entry.file.basename;
+		case 'file.path':
+			return entry.file.path;
+		case 'file.folder':
+			return entry.file.parent?.path ?? '';
+		case 'file.ext':
+			return entry.file.extension;
+		case 'file.size':
+			return entry.file.stat.size;
+		case 'file.ctime':
+			return new Date(entry.file.stat.ctime).toISOString().slice(0, 10);
+		case 'file.mtime':
+			return new Date(entry.file.stat.mtime).toISOString().slice(0, 10);
+		default:
+			return null;
+	}
 }
 
 function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknown {
@@ -237,8 +246,11 @@ function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknow
 			}
 		}
 
-		if (prefix === 'file' && candidate === 'file.name') {
-			return entry.file.basename;
+		if (prefix === 'file') {
+			const fileValue = readFileValue(entry, candidate);
+			if (fileValue !== null && fileValue !== undefined) {
+				return fileValue;
+			}
 		}
 
 		try {
@@ -321,6 +333,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		sortDirection,
 		itemLayout,
 		accentAlternationMode,
+		showYearBar: readBoolean(viewConfig.get('showYearBar'), true),
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -341,7 +354,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		this.rootEl = parentEl.createDiv('release-timeline-bases-view');
 	}
 
-	public onDataUpdated(): void {
+	public async onDataUpdated(): Promise<void> {
 		this.rootEl.empty();
 		this.rootEl.style.setProperty('max-width', `${this.plugin.settings.defaultWidthPx}px`);
 
@@ -349,7 +362,16 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
 		const releaseTimelineView = (this.query as { views?: Array<{ type?: string; order?: unknown; properties?: unknown }> } | undefined)?.views?.find((view) => view?.type === RELEASE_TIMELINE_VIEW_TYPE);
-		const inlineProperties = readQueryProperties(releaseTimelineView?.order ?? releaseTimelineView?.properties ?? this.config.get('order') ?? this.config.get('properties') ?? this.query?.properties);
+		let inlineProperties = readQueryProperties(releaseTimelineView?.order ?? releaseTimelineView?.properties ?? this.config.get('order') ?? this.config.get('properties') ?? this.query?.properties);
+
+		if (inlineProperties.length === 0) {
+			const activeFile = this.plugin.app.workspace.getActiveFile();
+			if (activeFile?.extension === 'base') {
+				const text = await this.plugin.app.vault.cachedRead(activeFile);
+				inlineProperties = readInlinePropertyIdsFromBaseText(text);
+			}
+		}
+
 		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId, inlineProperties);
 
 		if (records.length === 0) {
@@ -362,6 +384,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
 			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
 			accentAlternationMode: readAccentAlternationMode(this.plugin, this.config),
+			showYearBar: options.showYearBar,
 			widthPx: options.widthPx,
 			colors: this.plugin.settings,
 			app: this.plugin.app,

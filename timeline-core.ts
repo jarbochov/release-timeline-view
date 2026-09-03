@@ -31,6 +31,7 @@ export interface TimelineBuildOptions {
 	itemLayout: ItemLayout;
 	widthPx: number;
 	accentAlternationMode: AccentAlternationMode;
+	showYearBar: boolean;
 	collapseEmptyYears: boolean;
 	collapseLimit: number;
 	collapseEmptyMonths: boolean;

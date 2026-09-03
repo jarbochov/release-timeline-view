@@ -6,6 +6,7 @@ export interface TimelineRenderOptions {
 	bulletPoints: boolean;
 	itemLayout: 'stacked' | 'inline';
 	accentAlternationMode: AccentAlternationMode;
+	showYearBar: boolean;
 	widthPx: number;
 	colors: ReleaseTimelineSettings;
 	app: App;
@@ -19,14 +20,14 @@ function createCell(tag: 'th' | 'td', text: string, className: string): HTMLTabl
 	return cell;
 }
 
-export function createErrorTable(message: string): HTMLTableElement {
+export function createErrorTable(message: string, columnCount = 5): HTMLTableElement {
 	const table = document.createElement('table');
 	table.classList.add('release-timeline', 'release-timeline-error');
 
 	const tbody = document.createElement('tbody');
 	const row = document.createElement('tr');
 	const cell = document.createElement('td');
-	cell.setAttribute('colspan', '5');
+	cell.setAttribute('colspan', String(columnCount));
 	cell.textContent = message;
 	row.appendChild(cell);
 	tbody.appendChild(row);
@@ -111,8 +112,7 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.boxShadow = `inset 0.35rem 0 0 ${accentColor}`;
-	cell.style.paddingLeft = '0.7rem';
+	cell.style.paddingLeft = '0.75rem';
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -151,8 +151,7 @@ function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolea
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.boxShadow = `inset 0.35rem 0 0 ${accentColor}`;
-	cell.style.paddingLeft = '0.7rem';
+	cell.style.paddingLeft = '0.75rem';
 
 	if (!record) {
 		cell.classList.add('is-empty');
@@ -207,19 +206,21 @@ function groupRowsByYear(rows: TimelineRow[]): TimelineRow[][] {
 
 export function renderTimelineTable(rows: TimelineRow[], options: TimelineRenderOptions): HTMLTableElement {
 	if (rows.length === 0) {
-		return createErrorTable('No matching notes were found for this timeline.');
+		return createErrorTable('No matching notes were found for this timeline.', options.showYearBar ? 5 : 4);
 	}
 
 	const table = document.createElement('table');
 	table.classList.add('release-timeline', 'release-timeline-bases');
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;
+	table.dataset.showYearBar = String(options.showYearBar);
 	table.style.width = `${options.widthPx}px`;
 	table.style.maxWidth = '100%';
 
 	const tbody = document.createElement('tbody');
 	const yearGroups = groupRowsByYear(rows);
 	let monthIndex = 0;
+	const columnCount = options.showYearBar ? 5 : 4;
 
 	yearGroups.forEach((yearGroup, yearGroupIndex) => {
 		const yearRowSpan = yearGroup.reduce((sum, row, index) => sum + rowCountWithGap(row, options.itemLayout, index === yearGroup.length - 1), 0);
@@ -249,14 +250,16 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					yearCell.rowSpan = yearRowSpan;
 					yearCell.dataset.releaseKind = row.kind;
 					yearCell.dataset.state = row.empty ? 'empty' : 'existing';
-					yearCell.style.paddingRight = '0.85rem';
+					yearCell.style.paddingRight = '0.12rem';
 					tr.appendChild(yearCell);
 
-					const yearBarCell = document.createElement('td');
-					yearBarCell.classList.add('release-timeline-year-bar');
-					yearBarCell.rowSpan = yearRowSpan;
-					yearBarCell.style.backgroundColor = yearAccentColor;
-					tr.appendChild(yearBarCell);
+					if (options.showYearBar) {
+						const yearBarCell = document.createElement('td');
+						yearBarCell.classList.add('release-timeline-year-bar');
+						yearBarCell.rowSpan = yearRowSpan;
+						yearBarCell.style.backgroundColor = yearAccentColor;
+						tr.appendChild(yearBarCell);
+					}
 
 					yearCellDrawn = true;
 				}
@@ -267,7 +270,8 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					monthCell.rowSpan = monthRows;
 					monthCell.dataset.releaseKind = row.kind;
 					monthCell.dataset.state = row.empty ? 'empty' : 'existing';
-					monthCell.style.paddingRight = '0.75rem';
+					monthCell.style.paddingLeft = '0.15rem';
+					monthCell.style.paddingRight = '0.25rem';
 					tr.appendChild(monthCell);
 				}
 
@@ -289,7 +293,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--month-gap');
 				const gapCell = document.createElement('td');
 				gapCell.classList.add('release-timeline-gap');
-				gapCell.setAttribute('colspan', '5');
+				gapCell.setAttribute('colspan', String(columnCount));
 				gapRow.appendChild(gapCell);
 				tbody.appendChild(gapRow);
 			}
@@ -300,7 +304,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 			gapRow.classList.add('release-timeline-row', 'release-timeline-row--gap', 'release-timeline-row--year-gap');
 			const gapCell = document.createElement('td');
 			gapCell.classList.add('release-timeline-gap');
-			gapCell.setAttribute('colspan', '5');
+			gapCell.setAttribute('colspan', String(columnCount));
 			gapRow.appendChild(gapCell);
 			tbody.appendChild(gapRow);
 		}

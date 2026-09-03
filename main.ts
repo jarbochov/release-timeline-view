@@ -78,6 +78,12 @@ export default class ReleaseTimeline extends Plugin {
 					},
 				},
 				{
+					type: 'toggle',
+					key: 'showYearBar',
+					displayName: 'Show year bar',
+					default: true,
+				},
+				{
 					type: 'slider',
 					key: 'widthPx',
 					displayName: 'Width (px)',
