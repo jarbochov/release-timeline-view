@@ -152,12 +152,15 @@ table.release-timeline {
 
 .release-timeline .release-timeline-items {
 	font-weight: 700;
+	width: 100%;
+	min-width: 0;
 }
 
 .release-timeline .release-timeline-items--base {
 	background-color: var(--background-primary);
 	padding-left: 0.7rem;
 	padding-right: 0.75rem;
+	box-sizing: border-box;
 }
 
 .markdown-rendered .release-timeline .release-timeline-year-bar,
