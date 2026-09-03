@@ -46,7 +46,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h3', { text: 'Default view settings' });
+		new Setting(containerEl).setName('Default view settings').setHeading();
 
 		new Setting(containerEl)
 			.setName('Default timeline mode')
@@ -127,7 +127,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				});
 			});
 
-		containerEl.createEl('h3', { text: 'Year defaults' });
+		new Setting(containerEl).setName('Year defaults').setHeading();
 
 		new Setting(containerEl)
 			.setName('Collapse empty years')
@@ -153,7 +153,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 					}),
 			);
 
-		containerEl.createEl('h3', { text: 'Week defaults' });
+		new Setting(containerEl).setName('Week defaults').setHeading();
 
 		new Setting(containerEl)
 			.setName('Collapse empty weeks')
@@ -190,7 +190,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				});
 			});
 
-		containerEl.createEl('h3', { text: 'Timeline colors' });
+		new Setting(containerEl).setName('Timeline colors').setHeading();
 
 		new Setting(containerEl)
 			.setName('Primary accent')
