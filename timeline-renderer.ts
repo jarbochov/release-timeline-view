@@ -68,23 +68,19 @@ function appendInlineProperties(container: HTMLElement, record: TimelineRecord):
 		return;
 	}
 
-	const props = document.createElement('span');
+	const props = document.createElement('div');
 	props.classList.add('release-timeline-inline-properties');
 
-	record.inlineProperties.forEach((entry, index) => {
-		if (index > 0) {
-			props.appendChild(document.createTextNode(' · '));
-		}
-
-		const prop = document.createElement('span');
+	record.inlineProperties.forEach((entry) => {
+		const prop = document.createElement('div');
 		prop.classList.add('release-timeline-inline-property');
 
-		const label = document.createElement('span');
+		const label = document.createElement('div');
 		label.classList.add('release-timeline-inline-property-label');
-		label.textContent = `${entry.label}: `;
+		label.textContent = entry.label;
 		prop.appendChild(label);
 
-		const value = document.createElement('span');
+		const value = document.createElement('div');
 		value.classList.add('release-timeline-inline-property-value');
 		value.textContent = entry.value;
 		prop.appendChild(value);
@@ -98,13 +94,16 @@ function appendInlineProperties(container: HTMLElement, record: TimelineRecord):
 function createNoteContent(record: TimelineRecord, bulletPoints: boolean, app: App, hoverParent: HoverParent): HTMLSpanElement {
 	const wrapper = document.createElement('span');
 	wrapper.classList.add('release-timeline-note-content');
+	const titleRow = document.createElement('span');
+	titleRow.classList.add('release-timeline-note-title-row');
 	if (bulletPoints) {
 		const bullet = document.createElement('span');
 		bullet.classList.add('release-timeline-bullet');
 		bullet.textContent = '•';
-		wrapper.appendChild(bullet);
+		titleRow.appendChild(bullet);
 	}
-	wrapper.appendChild(createTimelineLink(record, app, hoverParent));
+	titleRow.appendChild(createTimelineLink(record, app, hoverParent));
+	wrapper.appendChild(titleRow);
 	appendInlineProperties(wrapper, record);
 	return wrapper;
 }

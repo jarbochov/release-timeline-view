@@ -1,4 +1,5 @@
 import { App, BasesEntry, BasesView, HoverParent, QueryController, TFile } from 'obsidian';
+import { DateTime } from 'luxon';
 import type ReleaseTimeline from './main';
 import { buildTimelineRows, parseTimelineDate, AccentAlternationMode, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
@@ -110,11 +111,29 @@ function normalizePropertyId(value: string): string | null {
 
 function humanizePropertyLabel(propertyId: string): string {
 	const base = propertyId.split('.').pop() ?? propertyId;
+	if (base === 'ctime') {
+		return 'created time';
+	}
+	if (base === 'mtime') {
+		return 'modified time';
+	}
 	return base
 		.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
 		.replace(/[_-]+/g, ' ')
 		.replace(/\s+/g, ' ')
-		.trim();
+		.trim()
+		.toLowerCase();
+}
+
+function formatInlinePropertyValue(propertyId: string, value: unknown): string {
+	if (propertyId === 'file.ctime' || propertyId === 'file.mtime') {
+		const millis = typeof value === 'number' ? value : Number(value);
+		if (Number.isFinite(millis)) {
+			return DateTime.fromMillis(millis).toFormat('yyyy-LL-dd, hh:mm:ss a');
+		}
+	}
+
+	return String(value).trim();
 }
 
 function readQueryProperties(value: unknown): string[] {
@@ -341,9 +360,9 @@ function readFileValue(entry: BasesEntry, propertyId: string): unknown {
 		case 'file.size':
 			return entry.file.stat.size;
 		case 'file.ctime':
-			return new Date(entry.file.stat.ctime).toISOString().slice(0, 10);
+			return entry.file.stat.ctime;
 		case 'file.mtime':
-			return new Date(entry.file.stat.mtime).toISOString().slice(0, 10);
+			return entry.file.stat.mtime;
 		default:
 			return null;
 	}
@@ -412,7 +431,7 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 			.filter((propertyId) => propertyId !== datePropertyId && propertyId !== labelPropertyId)
 			.map((propertyId) => {
 				const value = readEntryValue(app, entry, propertyId);
-				const text = value === null || value === undefined ? '' : String(value).trim();
+				const text = value === null || value === undefined ? '' : formatInlinePropertyValue(propertyId, value);
 				return text && text !== 'null' && text !== 'undefined' && text !== '[object Object]'
 					? { label: humanizePropertyLabel(propertyId), value: text }
 					: null;

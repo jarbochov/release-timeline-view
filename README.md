@@ -40,6 +40,7 @@ View settings:
 - `bulletPoints`: show bullets for multi-item periods
 - `itemLayout`: `stacked` for one item per line, or `inline` for delimiter-separated entries
 - `inlineDelimiter`: custom delimiter used when `itemLayout` is `inline`
+- `properties`: use the Base's built-in properties selector to show selected fields inline after each note
 - `collapseEmptyYears`: compress long runs of empty years in year mode
 - `collapseLimit`: minimum empty-year run length to collapse
 - `collapseEmptyMonths`: reduce empty months in week mode

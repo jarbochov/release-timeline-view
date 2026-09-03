@@ -183,25 +183,40 @@ table.release-timeline {
 }
 
 .release-timeline .release-timeline-note-content {
-	display: inline;
+	display: flex;
+	flex-direction: column;
+	gap: 0.18rem;
+}
+
+.release-timeline .release-timeline-note-title-row {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.35rem;
 }
 
 .release-timeline .release-timeline-bullet {
 	display: inline-block;
-	margin-right: 0.35rem;
 	color: var(--text-muted);
 }
 
 .release-timeline .release-timeline-inline-properties {
-	display: inline;
-	margin-left: 0.4rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.12rem;
+	margin-top: 0.18rem;
 	color: var(--text-muted);
 	font-weight: 500;
-	font-size: 0.95em;
+	font-size: 0.9em;
 }
 
 .release-timeline .release-timeline-inline-property-label {
-	font-weight: 600;
+	font-size: 0.88em;
+	text-transform: lowercase;
+	letter-spacing: 0.01em;
+}
+
+.release-timeline .release-timeline-inline-property-value {
+	color: var(--text-normal);
 }
 
 .release-timeline .is-empty {
