@@ -104,28 +104,34 @@ function humanizePropertyLabel(propertyId: string): string {
 		.trim();
 }
 
-function readPropertyList(value: unknown, fallback: string): string[] {
-	const rawItems: unknown[] = Array.isArray(value)
-		? value
-		: typeof value === 'string'
-			? value.split(',')
-			: [];
+function readQueryProperties(value: unknown): string[] {
+	if (!value) {
+		return [];
+	}
 
-	const items = rawItems.length > 0 ? rawItems : fallback.split(',');
 	const propertyIds: string[] = [];
 
-	for (const item of items) {
-		let candidate = '';
+	const rawItems: unknown[] = Array.isArray(value)
+		? value
+		: typeof value === 'object'
+			? Object.keys(value as Record<string, unknown>)
+			: [];
+
+	for (const item of rawItems) {
 		if (typeof item === 'string') {
-			candidate = item;
-		} else if (item && typeof item === 'object') {
-			const record = item as Record<string, unknown>;
-			candidate = String(record.id ?? record.propertyId ?? record.key ?? record.value ?? '').trim();
+			const trimmed = item.trim();
+			if (trimmed) {
+				propertyIds.push(trimmed);
+			}
+			continue;
 		}
 
-		const normalized = normalizePropertyId(candidate);
-		if (normalized) {
-			propertyIds.push(normalized);
+		if (item && typeof item === 'object') {
+			const record = item as Record<string, unknown>;
+			const candidate = String(record.id ?? record.propertyId ?? record.key ?? record.value ?? '').trim();
+			if (candidate) {
+				propertyIds.push(candidate);
+			}
 		}
 	}
 
@@ -184,7 +190,33 @@ function readFrontmatterValue(app: App, entry: BasesEntry, propertyId: string): 
 	const rawProperty = rest.join('.');
 
 	if (prefix === 'file') {
-		return entry.file.basename;
+		if (candidate === 'file.name' || candidate === 'file.basename' || candidate === 'file.fullname') {
+			return entry.file.basename;
+		}
+
+		if (candidate === 'file.path') {
+			return entry.file.path;
+		}
+
+		if (candidate === 'file.folder') {
+			return entry.file.parent?.path ?? '';
+		}
+
+		if (candidate === 'file.ext') {
+			return entry.file.extension;
+		}
+
+		if (candidate === 'file.size') {
+			return entry.file.stat.size;
+		}
+
+		if (candidate === 'file.ctime') {
+			return new Date(entry.file.stat.ctime).toISOString().slice(0, 10);
+		}
+
+		if (candidate === 'file.mtime') {
+			return new Date(entry.file.stat.mtime).toISOString().slice(0, 10);
+		}
 	}
 
 	const cache = app.metadataCache.getFileCache(entry.file);
@@ -226,7 +258,7 @@ function readRecordLabel(app: App, entry: BasesEntry, propertyId: string): strin
 	const value = readEntryValue(app, entry, propertyId);
 	if (value !== null && value !== undefined) {
 		const text = String(value).trim();
-		if (text.length > 0) {
+		if (text.length > 0 && text !== 'null' && text !== 'undefined' && text !== '[object Object]') {
 			return text;
 		}
 	}
@@ -256,7 +288,9 @@ function extractTimelineRecords(app: App, entries: BasesEntry[], datePropertyId:
 			.map((propertyId) => {
 				const value = readEntryValue(app, entry, propertyId);
 				const text = value === null || value === undefined ? '' : String(value).trim();
-				return text ? { label: humanizePropertyLabel(propertyId), value: text } : null;
+				return text && text !== 'null' && text !== 'undefined' && text !== '[object Object]'
+					? { label: humanizePropertyLabel(propertyId), value: text }
+					: null;
 			})
 			.filter((property): property is { label: string; value: string } => property !== null);
 
@@ -276,7 +310,6 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
 	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
 	const accentAlternationMode = readAccentAlternationMode(plugin, viewConfig);
-	const inlineProperties = readPropertyList(viewConfig.get('properties') ?? viewConfig.get('inlineProperties'), '');
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
@@ -288,7 +321,6 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		sortDirection,
 		itemLayout,
 		accentAlternationMode,
-		inlineProperties,
 		collapseEmptyYears,
 		collapseLimit,
 		collapseEmptyMonths,
@@ -316,7 +348,8 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
-		const inlineProperties = readPropertyList(this.config.get('properties') ?? this.config.get('inlineProperties'), '');
+		const releaseTimelineView = (this.query as { views?: Array<{ type?: string; order?: unknown; properties?: unknown }> } | undefined)?.views?.find((view) => view?.type === RELEASE_TIMELINE_VIEW_TYPE);
+		const inlineProperties = readQueryProperties(releaseTimelineView?.order ?? releaseTimelineView?.properties ?? this.config.get('order') ?? this.config.get('properties') ?? this.query?.properties);
 		const records = extractTimelineRecords(this.plugin.app, this.data.data, datePropertyId, labelPropertyId, inlineProperties);
 
 		if (records.length === 0) {

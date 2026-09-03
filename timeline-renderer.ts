@@ -111,8 +111,8 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.boxShadow = `inset 0.8rem 0 0 ${accentColor}`;
-	cell.style.paddingLeft = '0.8rem';
+	cell.style.boxShadow = `inset 0.35rem 0 0 ${accentColor}`;
+	cell.style.paddingLeft = '0.7rem';
 
 	if (records.length === 0) {
 		cell.classList.add('is-empty');
@@ -151,8 +151,8 @@ function createSingleItemRow(record: TimelineRecord | null, bulletPoints: boolea
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
-	cell.style.boxShadow = `inset 0.8rem 0 0 ${accentColor}`;
-	cell.style.paddingLeft = '0.8rem';
+	cell.style.boxShadow = `inset 0.35rem 0 0 ${accentColor}`;
+	cell.style.paddingLeft = '0.7rem';
 
 	if (!record) {
 		cell.classList.add('is-empty');
