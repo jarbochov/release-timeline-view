@@ -10,6 +10,7 @@ table.release-timeline {
 	border: 1px solid var(--background-modifier-border);
 	border-radius: 6px;
 	display: table;
+	table-layout: fixed;
 	width: var(--release-timeline-width, 100%);
 	max-width: 100%;
 }
@@ -78,7 +79,7 @@ table.release-timeline {
 	font-weight: 700;
 	white-space: nowrap;
 	vertical-align: middle;
-	min-width: 3.2rem;
+	width: 3.1rem;
 }
 
 .release-timeline .release-timeline-period--secondary {
@@ -86,7 +87,7 @@ table.release-timeline {
 	font-weight: 700;
 	white-space: nowrap;
 	vertical-align: middle;
-	min-width: 3.1rem;
+	width: 2.8rem;
 }
 
 .release-timeline .release-timeline-year-bar {
@@ -153,8 +154,8 @@ table.release-timeline {
 
 .markdown-rendered .release-timeline .release-timeline-year-bar,
 .markdown-preview-view .release-timeline .release-timeline-year-bar {
-	width: 0.4rem;
-	min-width: 0.4rem;
+	width: 0.3rem;
+	min-width: 0.3rem;
 }
 
 .markdown-rendered .release-timeline th,
@@ -183,8 +184,8 @@ table.release-timeline {
 
 .markdown-rendered .release-timeline .release-timeline-accent-cell,
 .markdown-preview-view .release-timeline .release-timeline-accent-cell {
-	width: 0.4rem;
-	min-width: 0.4rem;
+	width: 0.3rem;
+	min-width: 0.3rem;
 }
 
 .markdown-rendered .release-timeline .release-timeline-items,
