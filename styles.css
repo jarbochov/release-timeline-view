@@ -1,15 +1,13 @@
-/* stylelint-disable declaration-no-important */
-
 table.release-timeline {
 	flex: 1 1 100%;
 	margin: 0.5em auto;
 	padding: 0.75em 1em;
 	font-size: 80%;
 	line-height: 0.9;
-	border-collapse: separate !important;
-	border-spacing: 0 !important;
+	border-collapse: separate;
+	border-spacing: 0;
 	background-color: transparent;
-	border: 1px solid var(--background-modifier-border) !important;
+	border: 1px solid var(--background-modifier-border);
 	border-radius: 6px;
 	display: table;
 	width: var(--release-timeline-width, 100%);
@@ -24,7 +22,7 @@ table.release-timeline {
 	text-align: left;
 	font-weight: 700;
 	border: none;
-	padding: 0.4em !important;
+	padding: 0.4em;
 	background: none;
 	font: inherit;
 	color: inherit;
@@ -40,13 +38,13 @@ table.release-timeline {
 }
 
 .release-timeline tr.release-timeline-row--gap td {
-	padding: 0 !important;
+	padding: 0;
 	height: 0;
-	background: transparent !important;
+	background: transparent;
 }
 
 .release-timeline tr.release-timeline-row--gap {
-	background: transparent !important;
+	background: transparent;
 }
 
 .release-timeline tr.release-timeline-row--month-gap td {
@@ -63,7 +61,7 @@ table.release-timeline {
 	display: table-cell;
 	vertical-align: inherit;
 	border: none;
-	padding: 0.4em !important;
+	padding: 0.4em;
 	background: none;
 	font: inherit;
 	color: inherit;
@@ -72,7 +70,7 @@ table.release-timeline {
 .release-timeline .release-timeline-period--year,
 .release-timeline .release-timeline-period--secondary {
 	background-color: var(--background-secondary);
-	padding: 0.45rem 0.7rem !important;
+	padding: 0.45rem 0.7rem;
 }
 
 .release-timeline .release-timeline-period--year {
@@ -94,14 +92,14 @@ table.release-timeline {
 .release-timeline .release-timeline-year-bar {
 	width: 0.4rem;
 	min-width: 0.4rem;
-	padding: 0 !important;
+	padding: 0;
 	background-color: var(--release-timeline-year-bar, var(--background-modifier-border));
 }
 
 .release-timeline .release-timeline-accent-cell {
 	width: 0.4rem;
 	min-width: 0.4rem;
-	padding: 0 !important;
+	padding: 0;
 	background-color: var(--release-timeline-accent, var(--background-modifier-border));
 }
 
@@ -149,8 +147,8 @@ table.release-timeline {
 
 .release-timeline .release-timeline-items--base {
 	background-color: var(--background-primary);
-	padding-left: 0.7rem !important;
-	padding-right: 0.75rem !important;
+	padding-left: 0.7rem;
+	padding-right: 0.75rem;
 }
 
 .markdown-rendered .release-timeline .release-timeline-year-bar,
@@ -163,24 +161,24 @@ table.release-timeline {
 .markdown-rendered .release-timeline td,
 .markdown-preview-view .release-timeline th,
 .markdown-preview-view .release-timeline td {
-	border-top: none !important;
-	border-bottom: none !important;
-	box-shadow: none !important;
+	border-top: none;
+	border-bottom: none;
+	box-shadow: none;
 }
 
 .markdown-rendered .release-timeline tr.release-timeline-row--gap,
 .markdown-preview-view .release-timeline tr.release-timeline-row--gap {
-	background: transparent !important;
+	background: transparent;
 }
 
 .markdown-rendered .release-timeline tr.release-timeline-row--gap td,
 .markdown-preview-view .release-timeline tr.release-timeline-row--gap td {
-	background: transparent !important;
-	border: 0 !important;
-	box-shadow: none !important;
-	height: 0.35rem !important;
-	min-height: 0 !important;
-	padding: 0 !important;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	height: 0.35rem;
+	min-height: 0;
+	padding: 0;
 }
 
 .markdown-rendered .release-timeline .release-timeline-accent-cell,
@@ -191,7 +189,7 @@ table.release-timeline {
 
 .markdown-rendered .release-timeline .release-timeline-items,
 .markdown-preview-view .release-timeline .release-timeline-items {
-	padding-left: 0.55rem !important;
+	padding-left: 0.55rem;
 }
 
 .release-timeline .release-timeline-note-content {
