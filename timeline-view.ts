@@ -1,4 +1,4 @@
-import { App, BasesEntry, BasesView, HoverParent, QueryController } from 'obsidian';
+import { App, BasesEntry, BasesView, HoverParent, QueryController, TFile } from 'obsidian';
 import type ReleaseTimeline from './main';
 import { buildTimelineRows, parseTimelineDate, AccentAlternationMode, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
@@ -36,6 +36,19 @@ function readString(value: unknown, fallback: string): string {
 		if (text.length > 0 && text !== '[object Object]') {
 			return text;
 		}
+	}
+
+	return fallback;
+}
+
+function readText(value: unknown, fallback: string): string {
+	if (typeof value === 'string') {
+		return value.length > 0 ? value : fallback;
+	}
+
+	if (value !== null && value !== undefined) {
+		const text = String(value);
+		return text.length > 0 ? text : fallback;
 	}
 
 	return fallback;
@@ -139,19 +152,119 @@ function readQueryProperties(value: unknown): string[] {
 }
 
 function readInlinePropertyIdsFromBaseText(text: string): string[] {
-	const timelineViewMatch = text.match(/^\s*-\s*type:\s*release-timeline\b[\s\S]*?(?=^\s*-\s*type:|$)/m);
-	if (!timelineViewMatch) {
+	const lines = text.split(/\r?\n/);
+	const startIndex = lines.findIndex((line) => /^\s*-\s*type:\s*release-timeline\b/.test(line));
+	if (startIndex === -1) {
 		return [];
 	}
 
-	const section = timelineViewMatch[0];
-	const propertySectionMatch = section.match(/^\s*(?:order|properties):\s*([\s\S]*?)(?=^\s*\w+:\s*|$)/m);
-	if (!propertySectionMatch) {
-		return [];
+	const startIndent = lines[startIndex].match(/^(\s*)/)?.[1] ?? '';
+	const sectionLines: string[] = [];
+
+	for (let index = startIndex; index < lines.length; index += 1) {
+		const line = lines[index];
+		if (index > startIndex && new RegExp(`^${startIndent}-\\s*type:\\s*`).test(line)) {
+			break;
+		}
+		sectionLines.push(line);
 	}
 
-	const matches = propertySectionMatch[1].match(/^\s*-\s*(.+)$/gm) ?? [];
-	return readQueryProperties(matches.map((line) => line.replace(/^\s*-\s*/, '')));
+	const section = sectionLines.join('\n');
+	const sectionLinesSplit = section.split(/\r?\n/);
+	const propertyIds: string[] = [];
+
+	for (let index = 0; index < sectionLinesSplit.length; index += 1) {
+		const line = sectionLinesSplit[index];
+		const match = line.match(/^(\s*)(?:order|properties):\s*(.*)$/);
+		if (!match) {
+			continue;
+		}
+
+		const keyIndent = match[1].length;
+		const inlineValue = match[2].trim();
+
+		if (inlineValue) {
+			const cleaned = inlineValue.replace(/^[\[\(]\s*|\s*[\]\)]$/g, '');
+			const pieces = cleaned.includes(',') ? cleaned.split(',') : [cleaned];
+			for (const piece of pieces) {
+				const candidate = piece.trim().replace(/^['"]|['"]$/g, '');
+				if (candidate) {
+					propertyIds.push(candidate);
+				}
+			}
+			break;
+		}
+
+		for (let offset = index + 1; offset < sectionLinesSplit.length; offset += 1) {
+			const nextLine = sectionLinesSplit[offset];
+			if (!nextLine.trim()) {
+				continue;
+			}
+
+			const nextIndent = nextLine.match(/^(\s*)/)?.[1].length ?? 0;
+			if (nextIndent <= keyIndent) {
+				break;
+			}
+
+			const itemMatch = nextLine.match(/^\s*-\s*(.+)$/);
+			if (itemMatch) {
+				const candidate = itemMatch[1].trim().replace(/^['"]|['"]$/g, '');
+				if (candidate) {
+					propertyIds.push(candidate);
+				}
+			}
+		}
+
+		break;
+	}
+
+	return [...new Set(propertyIds)];
+}
+
+function extractBaseEmbeds(text: string): Array<{ path: string; fragment: string }> {
+	const embeds: Array<{ path: string; fragment: string }> = [];
+	const pattern = /!\[\[([^\]#|]+?\.base)(?:#([^\]|]+))?(?:\|[^\]]+)?\]\]/g;
+
+	for (const match of text.matchAll(pattern)) {
+		const path = match[1]?.trim();
+		if (!path) {
+			continue;
+		}
+
+		embeds.push({
+			path,
+			fragment: (match[2] ?? '').trim(),
+		});
+	}
+
+	return embeds;
+}
+
+async function readInlinePropertyIdsFromEmbedContext(app: App, activeFile: TFile, preferredViewName: string): Promise<string[]> {
+	const activeText = await app.vault.cachedRead(activeFile);
+	const embeds = extractBaseEmbeds(activeText);
+	const preferred = preferredViewName.trim().toLowerCase();
+	const orderedEmbeds = preferred
+		? [
+			...embeds.filter((embed) => embed.fragment.trim().toLowerCase() === preferred),
+			...embeds.filter((embed) => embed.fragment.trim().toLowerCase() !== preferred),
+		]
+		: embeds;
+
+	for (const embed of orderedEmbeds) {
+		const resolved = app.metadataCache.getFirstLinkpathDest(embed.path, activeFile.path);
+		if (!resolved || resolved.extension !== 'base') {
+			continue;
+		}
+
+		const text = await app.vault.cachedRead(resolved);
+		const properties = readInlinePropertyIdsFromBaseText(text);
+		if (properties.length > 0) {
+			return properties;
+		}
+	}
+
+	return [];
 }
 
 function normalizeWidth(value: unknown, fallback: number): number {
@@ -321,6 +434,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const mode = normalizeMode(readString(viewConfig.get('mode'), plugin.settings.defaultTimelineMode), plugin.settings.defaultTimelineMode);
 	const sortDirection = normalizeSortDirection(readString(viewConfig.get('sortDirection'), plugin.settings.defaultSortOrder), plugin.settings.defaultSortOrder);
 	const itemLayout = normalizeItemLayout(readString(viewConfig.get('itemLayout'), plugin.settings.defaultItemLayout), plugin.settings.defaultItemLayout);
+	const inlineDelimiter = readText(viewConfig.get('inlineDelimiter'), ', ');
 	const accentAlternationMode = readAccentAlternationMode(plugin, viewConfig);
 	const collapseEmptyYears = readBoolean(viewConfig.get('collapseEmptyYears'), plugin.settings.collapseEmptyYears);
 	const collapseLimit = Math.max(1, readNumber(viewConfig.get('collapseLimit'), Number.parseInt(plugin.settings.collapseLimit, 10) || 2));
@@ -332,6 +446,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		mode,
 		sortDirection,
 		itemLayout,
+		inlineDelimiter,
 		accentAlternationMode,
 		showYearBar: readBoolean(viewConfig.get('showYearBar'), true),
 		collapseEmptyYears,
@@ -359,6 +474,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		this.rootEl.style.setProperty('max-width', `${this.plugin.settings.defaultWidthPx}px`);
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
+		const viewName = readString(this.config.get('name'), '');
 		const datePropertyId = readPropertyId(this.config, 'dateProperty', 'note.date');
 		const labelPropertyId = readPropertyId(this.config, 'labelProperty', 'file.name');
 		const releaseTimelineView = (this.query as { views?: Array<{ type?: string; order?: unknown; properties?: unknown }> } | undefined)?.views?.find((view) => view?.type === RELEASE_TIMELINE_VIEW_TYPE);
@@ -369,6 +485,8 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 			if (activeFile?.extension === 'base') {
 				const text = await this.plugin.app.vault.cachedRead(activeFile);
 				inlineProperties = readInlinePropertyIdsFromBaseText(text);
+			} else if (activeFile) {
+				inlineProperties = await readInlinePropertyIdsFromEmbedContext(this.plugin.app, activeFile, viewName);
 			}
 		}
 
@@ -383,6 +501,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		this.rootEl.appendChild(renderTimelineTable(rows, {
 			bulletPoints: readBoolean(this.config.get('bulletPoints'), this.plugin.settings.bulletPoints),
 			itemLayout: normalizeItemLayout(readString(this.config.get('itemLayout'), this.plugin.settings.defaultItemLayout), this.plugin.settings.defaultItemLayout),
+			inlineDelimiter: options.inlineDelimiter,
 			accentAlternationMode: readAccentAlternationMode(this.plugin, this.config),
 			showYearBar: options.showYearBar,
 			widthPx: options.widthPx,

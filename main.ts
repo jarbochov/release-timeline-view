@@ -62,8 +62,15 @@ export default class ReleaseTimeline extends Plugin {
 					default: this.settings.defaultItemLayout,
 					options: {
 						stacked: 'Stacked',
-						inline: 'Inline with commas',
+						inline: 'Inline with delimiter',
 					},
+				},
+				{
+					type: 'text',
+					key: 'inlineDelimiter',
+					displayName: 'Inline delimiter',
+					placeholder: ', ',
+					default: ', ',
 				},
 				{
 					type: 'dropdown',

@@ -78,7 +78,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			.setDesc('Controls whether multiple items in a period stack vertically or appear inline.')
 			.addDropdown((dropdown) => {
 				dropdown.addOption('stacked', 'Stacked');
-				dropdown.addOption('inline', 'Inline with commas');
+				dropdown.addOption('inline', 'Inline with delimiter');
 				dropdown.setValue(this.plugin.settings.defaultItemLayout);
 				dropdown.onChange(async (value: ItemLayout) => {
 					this.plugin.settings.defaultItemLayout = value;

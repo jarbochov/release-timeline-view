@@ -29,6 +29,7 @@ export interface TimelineBuildOptions {
 	mode: TimelineMode;
 	sortDirection: SortDirection;
 	itemLayout: ItemLayout;
+	inlineDelimiter: string;
 	widthPx: number;
 	accentAlternationMode: AccentAlternationMode;
 	showYearBar: boolean;

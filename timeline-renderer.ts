@@ -5,6 +5,7 @@ import type { ReleaseTimelineSettings } from './settings';
 export interface TimelineRenderOptions {
 	bulletPoints: boolean;
 	itemLayout: 'stacked' | 'inline';
+	inlineDelimiter: string;
 	accentAlternationMode: AccentAlternationMode;
 	showYearBar: boolean;
 	widthPx: number;
@@ -108,7 +109,7 @@ function createNoteContent(record: TimelineRecord, bulletPoints: boolean, app: A
 	return wrapper;
 }
 
-function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', accentColor: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
+function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLayout: 'stacked' | 'inline', inlineDelimiter: string, app: App, hoverParent: HoverParent): HTMLTableCellElement {
 	const cell = document.createElement('td');
 	cell.classList.add('release-timeline-items');
 	cell.style.backgroundColor = 'var(--background-primary)';
@@ -139,7 +140,7 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 	const fragment = document.createDocumentFragment();
 	records.forEach((record, index) => {
 		if (index > 0) {
-			fragment.appendChild(document.createTextNode(', '));
+			fragment.appendChild(document.createTextNode(inlineDelimiter));
 		}
 		fragment.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
 	});
@@ -282,7 +283,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 				const itemCell = options.itemLayout === 'stacked'
 					? createSingleItemRow(itemRecord, options.bulletPoints, monthAccentColor, options.app, options.hoverParent)
-					: createItemCell(row.items, options.bulletPoints, options.itemLayout, monthAccentColor, options.app, options.hoverParent);
+					: createItemCell(row.items, options.bulletPoints, options.itemLayout, options.inlineDelimiter, options.app, options.hoverParent);
 
 				tr.appendChild(itemCell);
 				tbody.appendChild(tr);
