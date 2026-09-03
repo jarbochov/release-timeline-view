@@ -107,14 +107,12 @@ function createItemCell(records: TimelineRecord[], bulletPoints: boolean, itemLa
 		return cell;
 	}
 
-	const fragment = document.createDocumentFragment();
 	records.forEach((record, index) => {
 		if (index > 0) {
-			fragment.appendChild(document.createTextNode(inlineDelimiter));
+			cell.appendChild(document.createTextNode(inlineDelimiter));
 		}
-		fragment.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
+		cell.appendChild(createNoteContent(record, bulletPoints, app, hoverParent));
 	});
-	cell.appendChild(fragment);
 	return cell;
 }
 
@@ -261,4 +259,4 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 	return table;
 }
-/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Re-enable after the renderer helpers. */

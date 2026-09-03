@@ -47,7 +47,7 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName('Default view options').setHeading();
+		new Setting(containerEl).setName('General options').setHeading();
 
 		new Setting(containerEl)
 			.setName('Default timeline mode')
@@ -216,4 +216,4 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 			});
 	}
 }
-/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Re-enable after the settings tab class scope. */

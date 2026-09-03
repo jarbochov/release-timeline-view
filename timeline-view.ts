@@ -209,7 +209,9 @@ function readInlinePropertyIdsFromBaseText(text: string): string[] {
 		const inlineValue = match[2].trim();
 
 		if (inlineValue) {
-			const cleaned = inlineValue.replace(/^[\[(]\s*|\s*[\])]$/g, '');
+			const cleaned = inlineValue
+				.replace(/^[\[(]\s*/, '')
+				.replace(/\s*[\])]$/, '');
 			const pieces = cleaned.includes(',') ? cleaned.split(',') : [cleaned];
 			for (const piece of pieces) {
 				const candidate = piece.trim().replace(/^['"]|['"]$/g, '');
@@ -400,7 +402,7 @@ function readEntryValue(app: App, entry: BasesEntry, propertyId: string): unknow
 			// Ignore unsupported property ids and try the next candidate.
 		}
 	}
-	/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
+	/* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- Re-enable after the dynamic Bases value helpers. */
 
 	return null;
 }
