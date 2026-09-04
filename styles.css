@@ -82,7 +82,7 @@ table.release-timeline-view {
 	font-weight: 700;
 	white-space: nowrap;
 	vertical-align: middle;
-	width: 3.1rem;
+	width: 3.6em;
 }
 
 .release-timeline-view .release-timeline-view-period--secondary {
@@ -91,10 +91,6 @@ table.release-timeline-view {
 	white-space: nowrap;
 	vertical-align: middle;
 	width: 2.8rem;
-}
-
-.release-timeline-view tr.release-timeline-view-row--week .release-timeline-view-period--year {
-	width: 3rem;
 }
 
 .release-timeline-view tr.release-timeline-view-row--week .release-timeline-view-period--secondary {
