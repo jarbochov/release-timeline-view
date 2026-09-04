@@ -1,5 +1,5 @@
 {
-	"id": "release-timeline",
+	"id": "release-timeline-view",
 	"name": "Release Timeline View",
 	"version": "0.1.1",
 	"minAppVersion": "1.10.0",
