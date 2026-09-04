@@ -1,4 +1,4 @@
-table.release-timeline {
+table.release-timeline-view {
 	flex: 1 1 100%;
 	margin: 0.5em auto;
 	padding: 0.75em 1em;
@@ -11,15 +11,15 @@ table.release-timeline {
 	border-radius: 6px;
 	display: table;
 	table-layout: fixed;
-	width: var(--release-timeline-width, 100%);
+	width: var(--release-timeline-view-width, 100%);
 	max-width: 100%;
 }
 
-.release-timeline-bases-view {
-	max-width: var(--release-timeline-max-width, none);
+.release-timeline-view-bases-view {
+	max-width: var(--release-timeline-view-max-width, none);
 }
 
-.release-timeline thead th {
+.release-timeline-view thead th {
 	text-align: left;
 	font-weight: 700;
 	border: none;
@@ -29,35 +29,35 @@ table.release-timeline {
 	color: inherit;
 }
 
-.release-timeline tbody {
+.release-timeline-view tbody {
 	display: table-row-group;
 	vertical-align: middle;
 }
 
-.release-timeline tr {
+.release-timeline-view tr {
 	display: table-row;
 }
 
-.release-timeline tr.release-timeline-row--gap td {
+.release-timeline-view tr.release-timeline-view-row--gap td {
 	padding: 0;
 	height: 0;
 	background: transparent;
 }
 
-.release-timeline tr.release-timeline-row--gap {
+.release-timeline-view tr.release-timeline-view-row--gap {
 	background: transparent;
 }
 
-.release-timeline tr.release-timeline-row--month-gap td {
+.release-timeline-view tr.release-timeline-view-row--month-gap td {
 	height: 0.95rem;
 }
 
-.release-timeline tr.release-timeline-row--year-gap td {
+.release-timeline-view tr.release-timeline-view-row--year-gap td {
 	height: 1.4rem;
 }
 
-.release-timeline th,
-.release-timeline td {
+.release-timeline-view th,
+.release-timeline-view td {
 	text-align: left;
 	display: table-cell;
 	vertical-align: inherit;
@@ -68,13 +68,13 @@ table.release-timeline {
 	color: inherit;
 }
 
-.release-timeline .release-timeline-period--year,
-.release-timeline .release-timeline-period--secondary {
+.release-timeline-view .release-timeline-view-period--year,
+.release-timeline-view .release-timeline-view-period--secondary {
 	background-color: var(--background-secondary);
 	padding: 0.45rem 0.7rem;
 }
 
-.release-timeline .release-timeline-period--year {
+.release-timeline-view .release-timeline-view-period--year {
 	text-align: right;
 	font-weight: 700;
 	white-space: nowrap;
@@ -82,7 +82,7 @@ table.release-timeline {
 	width: 3.1rem;
 }
 
-.release-timeline .release-timeline-period--secondary {
+.release-timeline-view .release-timeline-view-period--secondary {
 	text-align: right;
 	font-weight: 700;
 	white-space: nowrap;
@@ -90,101 +90,101 @@ table.release-timeline {
 	width: 2.8rem;
 }
 
-.release-timeline tr.release-timeline-row--week .release-timeline-period--year {
+.release-timeline-view tr.release-timeline-view-row--week .release-timeline-view-period--year {
 	width: 3rem;
 }
 
-.release-timeline tr.release-timeline-row--week .release-timeline-period--secondary {
+.release-timeline-view tr.release-timeline-view-row--week .release-timeline-view-period--secondary {
 	width: 6.75rem;
 }
 
-.release-timeline .release-timeline-year-bar {
+.release-timeline-view .release-timeline-view-year-bar {
 	width: 0.4rem;
 	min-width: 0.4rem;
 	padding: 0;
-	background-color: var(--release-timeline-year-bar, var(--background-modifier-border));
+	background-color: var(--release-timeline-view-year-bar, var(--background-modifier-border));
 }
 
-.release-timeline .release-timeline-accent-cell {
+.release-timeline-view .release-timeline-view-accent-cell {
 	width: 0.4rem;
 	min-width: 0.4rem;
 	padding: 0;
-	background-color: var(--release-timeline-accent, var(--background-modifier-border));
+	background-color: var(--release-timeline-view-accent, var(--background-modifier-border));
 }
 
-.release-timeline a.internal-link {
+.release-timeline-view a.internal-link {
 	color: inherit;
 	text-decoration: none;
 	border-bottom: none;
 }
 
-.release-timeline a.internal-link:hover {
+.release-timeline-view a.internal-link:hover {
 	text-decoration: underline;
 }
 
-.release-timeline .release-timeline-list {
+.release-timeline-view .release-timeline-view-list {
 	margin: 0;
 	padding-left: 0;
 }
 
-.release-timeline .release-timeline-list.has-bullets {
+.release-timeline-view .release-timeline-view-list.has-bullets {
 	list-style: disc;
 	padding-left: 1.1rem;
 }
 
-.release-timeline .release-timeline-list.no-bullets {
+.release-timeline-view .release-timeline-view-list.no-bullets {
 	list-style: none;
 	padding-left: 0;
 }
 
-.release-timeline .release-timeline-list li + li {
+.release-timeline-view .release-timeline-view-list li + li {
 	margin-top: 0.15rem;
 }
 
-.release-timeline[data-item-layout='stacked'] .release-timeline-items {
+.release-timeline-view[data-item-layout='stacked'] .release-timeline-view-items {
 	padding-top: 0.1rem;
 	padding-bottom: 0.1rem;
 }
 
-.release-timeline[data-item-layout='inline'] .release-timeline-items {
+.release-timeline-view[data-item-layout='inline'] .release-timeline-view-items {
 	white-space: normal;
 }
 
-.release-timeline .release-timeline-items {
+.release-timeline-view .release-timeline-view-items {
 	font-weight: 700;
 	width: 100%;
 	min-width: 0;
 }
 
-.release-timeline .release-timeline-items--base {
+.release-timeline-view .release-timeline-view-items--base {
 	background-color: var(--background-primary);
 	padding-left: 0.7rem;
 	padding-right: 0.75rem;
 	box-sizing: border-box;
 }
 
-.markdown-rendered .release-timeline .release-timeline-year-bar,
-.markdown-preview-view .release-timeline .release-timeline-year-bar {
+.markdown-rendered .release-timeline-view .release-timeline-view-year-bar,
+.markdown-preview-view .release-timeline-view .release-timeline-view-year-bar {
 	width: 0.3rem;
 	min-width: 0.3rem;
 }
 
-.markdown-rendered .release-timeline th,
-.markdown-rendered .release-timeline td,
-.markdown-preview-view .release-timeline th,
-.markdown-preview-view .release-timeline td {
+.markdown-rendered .release-timeline-view th,
+.markdown-rendered .release-timeline-view td,
+.markdown-preview-view .release-timeline-view th,
+.markdown-preview-view .release-timeline-view td {
 	border-top: none;
 	border-bottom: none;
 	box-shadow: none;
 }
 
-.markdown-rendered .release-timeline tr.release-timeline-row--gap,
-.markdown-preview-view .release-timeline tr.release-timeline-row--gap {
+.markdown-rendered .release-timeline-view tr.release-timeline-view-row--gap,
+.markdown-preview-view .release-timeline-view tr.release-timeline-view-row--gap {
 	background: transparent;
 }
 
-.markdown-rendered .release-timeline tr.release-timeline-row--gap td,
-.markdown-preview-view .release-timeline tr.release-timeline-row--gap td {
+.markdown-rendered .release-timeline-view tr.release-timeline-view-row--gap td,
+.markdown-preview-view .release-timeline-view tr.release-timeline-view-row--gap td {
 	background: transparent;
 	border: 0;
 	box-shadow: none;
@@ -193,35 +193,35 @@ table.release-timeline {
 	padding: 0;
 }
 
-.markdown-rendered .release-timeline .release-timeline-accent-cell,
-.markdown-preview-view .release-timeline .release-timeline-accent-cell {
+.markdown-rendered .release-timeline-view .release-timeline-view-accent-cell,
+.markdown-preview-view .release-timeline-view .release-timeline-view-accent-cell {
 	width: 0.3rem;
 	min-width: 0.3rem;
 }
 
-.markdown-rendered .release-timeline .release-timeline-items,
-.markdown-preview-view .release-timeline .release-timeline-items {
+.markdown-rendered .release-timeline-view .release-timeline-view-items,
+.markdown-preview-view .release-timeline-view .release-timeline-view-items {
 	padding-left: 0.55rem;
 }
 
-.release-timeline .release-timeline-note-content {
+.release-timeline-view .release-timeline-view-note-content {
 	display: inline-flex;
 	flex-direction: column;
 	gap: 0.18rem;
 }
 
-.release-timeline .release-timeline-note-title-row {
+.release-timeline-view .release-timeline-view-note-title-row {
 	display: inline-flex;
 	align-items: baseline;
 	gap: 0.35rem;
 }
 
-.release-timeline .release-timeline-bullet {
+.release-timeline-view .release-timeline-view-bullet {
 	display: inline-block;
 	color: var(--text-muted);
 }
 
-.release-timeline .release-timeline-inline-properties {
+.release-timeline-view .release-timeline-view-inline-properties {
 	display: flex;
 	flex-direction: column;
 	gap: 0.12rem;
@@ -233,21 +233,21 @@ table.release-timeline {
 	font-size: 0.9em;
 }
 
-.release-timeline .release-timeline-inline-property-label {
+.release-timeline-view .release-timeline-view-inline-property-label {
 	font-size: 0.88em;
 	letter-spacing: 0.01em;
 }
 
-.release-timeline .release-timeline-inline-property-value {
+.release-timeline-view .release-timeline-view-inline-property-value {
 	color: var(--text-normal);
 }
 
-.release-timeline .is-empty {
+.release-timeline-view .is-empty {
 	color: var(--text-muted);
 	font-style: italic;
 }
 
-.release-timeline-error td {
+.release-timeline-view-error td {
 	color: var(--text-muted);
 	font-style: italic;
 }

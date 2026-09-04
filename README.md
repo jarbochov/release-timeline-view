@@ -25,7 +25,7 @@ filters:
   and:
     - note.releaseDate
 views:
-  - type: release-timeline
+  - type: release-timeline-view
     name: Release Timeline View
     mode: year
     dateProperty: note.releaseDate

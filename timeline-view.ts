@@ -5,7 +5,7 @@ import type ReleaseTimeline from './main';
 import { buildTimelineRows, parseTimelineDate, AccentAlternationMode, ItemLayout, TimelineBuildOptions, TimelineRecord, TimelineMode, SortDirection, WeekDisplayFormat } from './timeline-core';
 import { createErrorTable, renderTimelineTable } from './timeline-renderer';
 
-export const RELEASE_TIMELINE_VIEW_TYPE = 'release-timeline';
+export const RELEASE_TIMELINE_VIEW_TYPE = 'release-timeline-view';
 
 function readBoolean(value: unknown, fallback: boolean): boolean {
 	if (typeof value === 'boolean') {
@@ -178,7 +178,7 @@ function readQueryProperties(value: unknown): string[] {
 
 function readInlinePropertyIdsFromBaseText(text: string): string[] {
 	const lines = text.split(/\r?\n/);
-	const startIndex = lines.findIndex((line) => /^\s*-\s*type:\s*release-timeline\b/.test(line));
+	const startIndex = lines.findIndex((line) => /^\s*-\s*type:\s*release-timeline-view\b/.test(line));
 	if (startIndex === -1) {
 		return [];
 	}
@@ -516,33 +516,33 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 	constructor(controller: QueryController, parentEl: HTMLElement, plugin: ReleaseTimeline) {
 		super(controller);
 		this.plugin = plugin;
-		this.rootEl = parentEl.createDiv('release-timeline-bases-view');
+		this.rootEl = parentEl.createDiv('release-timeline-view-bases-view');
 	}
 
 	public async onDataUpdated(): Promise<void> {
 		this.rootEl.empty();
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
-		const instanceId = `release-timeline-${Date.now().toString(36)}`;
+		const instanceId = `release-timeline-view-${Date.now().toString(36)}`;
 		this.rootEl.dataset.releaseTimelineInstance = instanceId;
-		this.rootEl.style.setProperty('--release-timeline-width', `${options.widthPx}px`);
-		this.rootEl.style.setProperty('--release-timeline-max-width', `${options.widthPx}px`);
+		this.rootEl.style.setProperty('--release-timeline-view-width', `${options.widthPx}px`);
+		this.rootEl.style.setProperty('--release-timeline-view-max-width', `${options.widthPx}px`);
 		this.rootEl.style.width = `${options.widthPx}px`;
 		this.rootEl.style.maxWidth = `${options.widthPx}px`;
 		const style = document.createElement('style');
 		style.textContent = `
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] {
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] {
 	max-width: ${options.widthPx}px;
 }
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline {
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] .release-timeline-view {
 	width: ${options.widthPx}px;
 }
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-year-bar--primary,
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-accent-cell--primary {
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] .release-timeline-view-year-bar--primary,
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] .release-timeline-view-accent-cell--primary {
 	background-color: ${this.plugin.settings.accentPrimaryColor};
 }
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-year-bar--alternate,
-.release-timeline-bases-view[data-release-timeline-instance="${instanceId}"] .release-timeline-accent-cell--alternate {
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] .release-timeline-view-year-bar--alternate,
+.release-timeline-view-bases-view[data-release-timeline-view-instance="${instanceId}"] .release-timeline-view-accent-cell--alternate {
 	background-color: ${this.plugin.settings.accentAlternateColor};
 }`;
 		this.rootEl.appendChild(style);
