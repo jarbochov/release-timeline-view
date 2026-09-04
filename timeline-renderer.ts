@@ -190,8 +190,9 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	const yearGroups = groupRowsByYear(rows);
 	let monthIndex = 0;
 	const columnCount = options.showYearBar ? 5 : 4;
+		const barWidth = '0.4rem';
 
-	yearGroups.forEach((yearGroup, yearGroupIndex) => {
+		yearGroups.forEach((yearGroup, yearGroupIndex) => {
 		const yearRowSpan = yearGroup.reduce((sum, row, index) => sum + rowCountWithGap(row, options.itemLayout, index === yearGroup.length - 1), 0);
 		const yearPalette = getPalette(options.colors);
 		const monthPalette = getPalette(options.colors);
@@ -225,6 +226,10 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 					if (options.showYearBar) {
 						const yearBarCell = tr.createEl('td', { cls: ['release-timeline-view-year-bar', `release-timeline-view-year-bar--${yearAccentClass}`] });
 						yearBarCell.rowSpan = yearRowSpan;
+						yearBarCell.style.setProperty('width', barWidth, 'important');
+						yearBarCell.style.setProperty('min-width', barWidth, 'important');
+						yearBarCell.style.setProperty('max-width', barWidth, 'important');
+						yearBarCell.style.setProperty('padding', '0', 'important');
 					}
 
 					yearCellDrawn = true;
@@ -240,6 +245,10 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 				}
 
 				const accentCell = tr.createEl('td', { cls: ['release-timeline-view-accent-cell', `release-timeline-view-accent-cell--${monthAccentClass}`] });
+				accentCell.style.setProperty('width', barWidth, 'important');
+				accentCell.style.setProperty('min-width', barWidth, 'important');
+				accentCell.style.setProperty('max-width', barWidth, 'important');
+				accentCell.style.setProperty('padding', '0', 'important');
 				tr.appendChild(accentCell);
 
 				const itemCell = options.itemLayout === 'stacked'
@@ -252,13 +261,17 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 
 			if (rowIndex < yearGroup.length - 1) {
 				const gapRow = tbody.createEl('tr', { cls: ['release-timeline-view-row', 'release-timeline-view-row--gap', 'release-timeline-view-row--month-gap'] });
-				gapRow.createEl('td', { cls: 'release-timeline-view-gap', attr: { colspan: String(columnCount) } });
+				const gapCell = gapRow.createEl('td', { cls: 'release-timeline-view-gap', attr: { colspan: String(columnCount) } });
+				gapCell.style.setProperty('height', '0.95rem', 'important');
+				gapCell.style.setProperty('padding', '0', 'important');
 			}
 		});
 
 		if (yearGroupIndex < yearGroups.length - 1) {
 			const gapRow = tbody.createEl('tr', { cls: ['release-timeline-view-row', 'release-timeline-view-row--gap', 'release-timeline-view-row--year-gap'] });
-			gapRow.createEl('td', { cls: 'release-timeline-view-gap', attr: { colspan: String(columnCount) } });
+			const gapCell = gapRow.createEl('td', { cls: 'release-timeline-view-gap', attr: { colspan: String(columnCount) } });
+			gapCell.style.setProperty('height', '1.4rem', 'important');
+			gapCell.style.setProperty('padding', '0', 'important');
 		}
 	});
 
