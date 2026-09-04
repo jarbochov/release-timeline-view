@@ -524,7 +524,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 
 		const options = resolveTimelineOptions(this.plugin, this.config);
 		const instanceId = `release-timeline-view-${Date.now().toString(36)}`;
-		this.rootEl.dataset.releaseTimelineInstance = instanceId;
+		this.rootEl.dataset.releaseTimelineViewInstance = instanceId;
 		this.rootEl.style.setProperty('--release-timeline-view-width', `${options.widthPx}px`);
 		this.rootEl.style.setProperty('--release-timeline-view-max-width', `${options.widthPx}px`);
 		this.rootEl.style.width = `${options.widthPx}px`;

@@ -178,7 +178,7 @@ export function renderTimelineTable(rows: TimelineRow[], options: TimelineRender
 	}
 
 	const table = createDetachedHost().createEl('table', { cls: ['release-timeline-view', 'release-timeline-view-bases'] });
-	table.dataset.releaseTimelineInstance = options.instanceId;
+	table.dataset.releaseTimelineViewInstance = options.instanceId;
 	table.dataset.mode = options.mode;
 	table.dataset.itemLayout = options.itemLayout;
 	table.dataset.accentAlternationMode = options.accentAlternationMode;

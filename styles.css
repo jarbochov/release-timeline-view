@@ -163,12 +163,6 @@ table.release-timeline-view {
 	box-sizing: border-box;
 }
 
-.markdown-rendered .release-timeline-view .release-timeline-view-year-bar,
-.markdown-preview-view .release-timeline-view .release-timeline-view-year-bar {
-	width: 0.3rem;
-	min-width: 0.3rem;
-}
-
 .markdown-rendered .release-timeline-view th,
 .markdown-rendered .release-timeline-view td,
 .markdown-preview-view .release-timeline-view th,
@@ -191,12 +185,6 @@ table.release-timeline-view {
 	height: 0.35rem;
 	min-height: 0;
 	padding: 0;
-}
-
-.markdown-rendered .release-timeline-view .release-timeline-view-accent-cell,
-.markdown-preview-view .release-timeline-view .release-timeline-view-accent-cell {
-	width: 0.3rem;
-	min-width: 0.3rem;
 }
 
 .markdown-rendered .release-timeline-view .release-timeline-view-items,
