@@ -9,6 +9,7 @@ export interface ReleaseTimelineSettings {
 	defaultItemLayout: ItemLayout;
 	accentAlternationMode: AccentAlternationMode;
 	defaultWidthPx: number;
+	defaultFontSizePercent: number;
 	collapseEmptyYears: boolean;
 	bulletPoints: boolean;
 	collapseLimit: string;
@@ -25,6 +26,7 @@ export const DEFAULT_SETTINGS: ReleaseTimelineSettings = {
 	defaultItemLayout: 'stacked',
 	accentAlternationMode: 'both',
 	defaultWidthPx: 900,
+	defaultFontSizePercent: 80,
 	collapseEmptyYears: false,
 	bulletPoints: true,
 	collapseLimit: '2',
@@ -113,6 +115,19 @@ export class ReleaseTimelineSettingTab extends PluginSettingTab {
 				slider.setDynamicTooltip();
 				slider.onChange(async (value) => {
 					this.plugin.settings.defaultWidthPx = value;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Default font size')
+			.setDesc('Sets the timeline text size as a percentage of the Obsidian interface font.')
+			.addSlider((slider) => {
+				slider.setLimits(60, 140, 5);
+				slider.setValue(this.plugin.settings.defaultFontSizePercent);
+				slider.setDynamicTooltip();
+				slider.onChange(async (value) => {
+					this.plugin.settings.defaultFontSizePercent = value;
 					await this.plugin.saveSettings();
 				});
 			});

@@ -105,6 +105,15 @@ export default class ReleaseTimeline extends Plugin {
 						step: 25,
 					},
 					{
+						type: 'slider',
+						key: 'fontSizePercent',
+						displayName: 'Font size (%)',
+						default: this.settings.defaultFontSizePercent,
+						min: 60,
+						max: 140,
+						step: 5,
+					},
+					{
 						type: 'toggle',
 						key: 'bulletPoints',
 						displayName: 'Bullet points in stacked layout',

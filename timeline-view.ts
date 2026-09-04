@@ -490,6 +490,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 	const collapseEmptyMonths = readBoolean(viewConfig.get('collapseEmptyMonths'), plugin.settings.collapseEmptyMonthsWeeklyTimeline);
 	const weekDisplayFormat = normalizeWeekDisplayFormat(readString(viewConfig.get('weekDisplayFormat'), plugin.settings.weekDisplayFormat), plugin.settings.weekDisplayFormat);
 	const widthPx = Math.max(400, normalizeWidth(viewConfig.get('widthPx'), plugin.settings.defaultWidthPx));
+	const fontSizePercent = Math.min(140, Math.max(60, readNumber(viewConfig.get('fontSizePercent'), plugin.settings.defaultFontSizePercent)));
 
 	return {
 		mode,
@@ -504,6 +505,7 @@ function resolveTimelineOptions(plugin: ReleaseTimeline, viewConfig: BasesView['
 		collapseEmptyMonths,
 		weekDisplayFormat,
 		widthPx,
+		fontSizePercent,
 	};
 }
 
@@ -527,6 +529,7 @@ export class ReleaseTimelineBasesView extends BasesView implements HoverParent {
 		this.rootEl.dataset.releaseTimelineViewInstance = instanceId;
 		this.rootEl.style.setProperty('--release-timeline-view-width', `${options.widthPx}px`);
 		this.rootEl.style.setProperty('--release-timeline-view-max-width', `${options.widthPx}px`);
+		this.rootEl.style.setProperty('--release-timeline-view-font-size', `${options.fontSizePercent}%`);
 		this.rootEl.style.width = `${options.widthPx}px`;
 		this.rootEl.style.maxWidth = `${options.widthPx}px`;
 		const style = document.createElement('style');

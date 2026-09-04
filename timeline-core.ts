@@ -32,6 +32,7 @@ export interface TimelineBuildOptions {
 	itemLayout: ItemLayout;
 	inlineDelimiter: string;
 	widthPx: number;
+	fontSizePercent: number;
 	accentAlternationMode: AccentAlternationMode;
 	showYearBar: boolean;
 	collapseEmptyYears: boolean;
