@@ -98,7 +98,7 @@ table.release-timeline-view {
 }
 
 .release-timeline-view tr.release-timeline-view-row--week .release-timeline-view-period--secondary {
-	width: 6.75rem;
+	width: 8.5em;
 }
 
 .release-timeline-view .release-timeline-view-year-bar {
